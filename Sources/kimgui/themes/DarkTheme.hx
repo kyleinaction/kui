@@ -1,0 +1,16 @@
+package kimgui.themes;
+
+class DarkTheme {
+  public static var theme: Theme = {
+    // Window properties
+    WINDOW_BG_COLOR: 0xFF1E1E1E,
+    WINDOW_BORDER_COLOR: 0xFFAAAAAA,
+    WINDOW_BORDER_SIZE: 1.0,
+
+    WINDOW_TITLEBAR_TEXT_COLOR: 0xFFFFFFFF,
+    WINDOW_TITLEBAR_COLOR: 0xFF00508E,
+    WINDOW_TITLEBAR_HEIGHT: 20,
+    WINDOW_TITLE_BAR_FONT_SIZE: 14,
+    WINDOW_TITLE_BAR_PADDING: 3
+  };
+}

@@ -10,6 +10,12 @@ class Handle {
 	public var selected = false;
   public var window: Window;
 
+  private var isDragging: Bool;
+  private var dragX: Float;
+  private var dragY: Float;
+  private var dragOffsetX: Float;
+  private var dragOffsetY: Float;
+
 	private var m_children: Map<Int, Handle>;
 
 	public function new(ops: HandleOptions = null) {

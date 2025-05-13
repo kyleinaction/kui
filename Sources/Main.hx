@@ -29,7 +29,7 @@ class Application {
   public var ui:Kimgui;
 
   public function new() {
-    ui = new Kimgui();
+    ui = new Kimgui({ font: Assets.fonts.OpenSansMedium });
   }
 
   public function run():Void {
@@ -57,7 +57,7 @@ class Application {
 
     // Render UI after other rendering finishes
     ui.begin(g2);
-      ui.window(Id.handle());
+      ui.window(Id.handle(), "First Window", 30, 30, 300, 300);
       ui.endWindow();
     ui.end();
   }

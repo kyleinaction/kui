@@ -6,23 +6,27 @@ class Node {
 
   private var m_windows: Array<Window>;
   public var windows(get, null):Array<Window>;
+  
+  private var m_activeWindow: Window;
 
   private var m_splitDirection: NodeSplitDirection;
   private var m_nodes: Array<Node>;
 
+  // Size
   private var m_x: Float;
   private var m_y: Float;
   private var m_width: Float;
   private var m_height: Float;
-  
-  public function new(splitDirection: NodeSplitDirection) {
+
+  public function new(splitDirection: NodeSplitDirection, x:Float = 0, y:Float = 0, width:Float = 0, height:Float = 0) {
     m_splitDirection = splitDirection;
     m_windows   = [];
     m_nodes     = [];
-    m_x         = 0;
-    m_y         = 0;
-    m_width     = 0;
-    m_height    = 0;
+
+    m_x         = x;
+    m_y         = y;
+    m_width     = width;
+    m_height    = height;
   }
 
   public function resize(width: Float, height: Float) {
@@ -38,20 +42,11 @@ class Node {
     return m_windows;
   }
 
-  // public function splitWith(node: Node, location:NodeLocation): Void {
-  //   var splitDirection = NodeSplitDirection.NONE;
-  //   if (location == NodeLocation.LEFT || location == NodeLocation.RIGHT) {
-  //     splitDirection = NodeSplitDirection.VERTICAL;
-  //   } else if (location == NodeLocation.TOP || location == NodeLocation.BOTTOM) {
-  //     splitDirection = NodeSplitDirection.HORIZONTAL;
-  //   }
-    
-  //   var newNode = new Node(m_splitDirection);
-  //   newNode.m_parent = this;
-  //   node.m_parent = this;
-  // }
-
   public function addWindow(window: Window) {
+    if (m_activeWindow == null) {
+      m_activeWindow = window;
+    }
+
     window.m_parent = this;
     m_windows.push(window);
   }
