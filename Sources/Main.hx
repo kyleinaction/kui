@@ -52,10 +52,10 @@ class Application {
 
 		// Start drawing, and clear the framebuffer to `petrol`
 		g2.begin(true, Color.fromBytes(0, 0, 0));
-      g2.color = 0xFFFF0000;
-      g2.fillRect(0, 0, fb.width, fb.height);
+      // Do normal rendering here
     g2.end();
 
+    // Render UI after other rendering finishes
     ui.begin(g2);
       ui.window(Id.handle());
       ui.endWindow();

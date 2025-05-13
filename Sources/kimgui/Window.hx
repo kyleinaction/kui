@@ -14,7 +14,7 @@ class Window {
   private var m_debugColor: Int;
 
   public function new() {
-    m_debugColor = kha.Color.Blue;
+    m_debugColor = kha.Color.fromFloats(Math.random(), Math.random(), Math.random());
     // Constructor code here
   }
 
@@ -26,7 +26,7 @@ class Window {
     var height = m_parent.m_height;
 
     g.begin(false);
-      g.color = kha.Color.Blue;
+      g.color = m_debugColor;
       g.fillRect(x, y, width, height);
     g.end();
   }
