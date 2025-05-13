@@ -1,5 +1,8 @@
 package kimgui.themes;
 
+/**
+ * DarkTheme for Kimgui.
+ */
 class DarkTheme {
   public static var theme: Theme = {
     // Window properties

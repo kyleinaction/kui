@@ -28,12 +28,18 @@ class Kimgui {
   private var m_currentWindow: Window;
 
   /**
-   * The current window being dragged (if any)
+   * The current window being dragged (if any).
    */
   private var m_dragWindow: Handle;
 
+  /**
+   * UI options.
+   */
   private var m_options: Options;
 
+  /**
+   * Render pipeline for text.
+   */
   private var m_textPipeline: kha.graphics4.PipelineState; // Rendering text into rendertargets
 
   /**
@@ -90,6 +96,9 @@ class Kimgui {
     g.end();
   }
 
+  /**
+   * Creates a new window.
+   */
   public function window(handle:Handle, title:String = "", x:Float = 0.0, y:Float = 0.0, width:Float = 200.0, height:Float = 200.0):Bool {
     if (m_currentWindow != null) {
       endWindow();
@@ -113,15 +122,24 @@ class Kimgui {
     return true;
   }
 
+  /**
+   * Ends the current window.
+   */
   public function endWindow() {
     m_currentWindow = null;
   }
 
+  /**
+   * Draws a rectangle.
+   */
   public function drawRect(x: Float, y: Float, width: Float, height: Float, color: Int) {
     g.color = color;
     g.fillRect(x, y, width, height);
   }
 
+  /**
+   * Draws a line.
+   */
   public function drawString(text: String, x: Float, y: Float, color: Int, fontSize: Int = 12) {
     g.pipeline = m_textPipeline;
     g.font = m_options.font;

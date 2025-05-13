@@ -1,5 +1,8 @@
 package kimgui;
 
+/**
+ * Theme definition for Kimgui.
+ */
 typedef Theme = {
   var WINDOW_BG_COLOR: Int;
   var WINDOW_BORDER_COLOR: Int;

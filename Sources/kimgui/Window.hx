@@ -3,20 +3,30 @@ package kimgui;
 import kha.graphics2.Graphics;
 
 /**
- * WindowDrawList is a class that represents a draw list for a window.
- * Whenever a new window is created, 
+ * Window is a class that represents a window in the Kimgui UI system.
  */
 @:access(kimgui.Node)
 class Window {
-  private var m_drawList: Array<Drawable>;
+  /**
+   * Parent node of this window.
+   */
   private var m_parent: Node;
-  
+
+  /**
+   * Window title.
+   */
   public var title: String;
 
+  /**
+   * Constructor.
+   */
   public function new() {
     title = "";
   }
 
+  /**
+   * Renders the window & it's contents.
+   */
   public function render(ui:Kimgui, theme: Theme) {
     // Window dimensions are based on node dimensions
     var x = m_parent.m_x;
