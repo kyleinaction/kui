@@ -8,6 +8,7 @@ package kimgui;
  */
 class Handle {
 	public var selected = false;
+  public var window: Window;
 
 	private var m_children: Map<Int, Handle>;
 
