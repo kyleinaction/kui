@@ -58,7 +58,7 @@ class Application {
     // Render UI after other rendering finishes
     ui.begin(g2);
       ui.window(Id.handle(), "First Window", 30, 30, 300, 300);
-      ui.endWindow();
+      ui.window(Id.handle(), "Second Window", 350, 30, 300, 300);
     ui.end();
   }
 }

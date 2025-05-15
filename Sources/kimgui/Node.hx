@@ -1,5 +1,7 @@
 package kimgui;
 
+import haxe.Exception;
+
 /**
  * The Node class represents a node in the UI tree. It can either contain two leaf nodes, OR it can
  * contain child windows.
@@ -9,18 +11,17 @@ class Node {
   /**
    * The parent of this node, if one exists.
    */
-  private var m_parent: Node;
+  public var parent: Node;
 
   /**
    * Leaf nodes.
    */
-  private var m_nodes: Array<Node>;
+  public var nodes: Array<Node>;
 
   /**
    * Child windows.
    */
-  private var m_windows: Array<Window>;
-  public var windows(get, null):Array<Window>;
+  public var windows: Array<Window>;
   
   /**
    * The active window. This is the window that is currently being drawn.
@@ -30,68 +31,69 @@ class Node {
   /**
    * The split direction of this node if it is a split node.
    */
-  private var m_splitDirection: NodeSplitDirection;
+  private var splitDirection: NodeSplitDirection;
 
   /**
    * The x position of this node.
    */
-  private var m_x: Float;
+  public var x: Float;
 
   /**
    * The y position of this node.
    */
-  private var m_y: Float;
+  public var y: Float;
 
   /**
    * The width of this node.
    */
-  private var m_width: Float;
+  public var width: Float;
 
   /**
    * The height of this node.
    */
-  private var m_height: Float;
+  public var height: Float;
+
+  /**
+   * Whether this node is highlighted or not. This is used for dragging nodes.
+   */
+  public var highlighted: Bool = false;
 
   /**
    * The constructor for the Node class.
    */
   public function new(splitDirection: NodeSplitDirection, x:Float = 0, y:Float = 0, width:Float = 0, height:Float = 0) {
-    m_splitDirection = splitDirection;
-    m_windows   = [];
-    m_nodes     = [];
+    this.splitDirection = splitDirection;
+    windows   = [];
+    nodes     = [];
 
-    m_x         = x;
-    m_y         = y;
-    m_width     = width;
-    m_height    = height;
+    this.x         = x;
+    this.y         = y;
+    this.width     = width;
+    this.height    = height;
   }
 
   /**
    * Resizes the node to the given width and height. This will also resize all child nodes.
    */
   public function resize(width: Float, height: Float) {
-    if (m_width != width || m_height != height) {
-      m_width = width;
-      m_height = height;
+    if (this.width != width || this.height != height) {
+      this.width = width;
+      this.height = height;
 
       resizeNodes();
     }
   }
 
   /**
-   * Returns the child windows.
-   */
-  public function get_windows(): Array<Window> {
-    return m_windows;
-  }
-
-  /**
    * Adds a child window to this node.
    */
   public function addWindow(window: Window) {
-    window.m_parent = this;
-    m_windows.push(window);
-    m_activeWindow = window;
+    window.node = this;
+    windows.push(window);
+
+    if (m_activeWindow == null) {
+      m_activeWindow = window;
+    }
   }
 
   /**
@@ -99,20 +101,88 @@ class Node {
    */
   private function resizeNodes() {
     // Don't resize if there are no nodes
-    if (m_nodes.length == 0) {
+    if (nodes.length == 0) {
       return;
     }
 
-    if (m_splitDirection == NodeSplitDirection.NONE) {
+    if (splitDirection == NodeSplitDirection.NONE) {
       return;
-    } else if (m_splitDirection == NodeSplitDirection.HORIZONTAL) {
-      final firstNodeWidth = m_nodes[0].m_width;
-      final secondNodeWidth = m_width - firstNodeWidth;
-      m_nodes[1].resize(secondNodeWidth, m_height);
-    } else if (m_splitDirection == NodeSplitDirection.VERTICAL) {
-      final firstNodeHeight = m_nodes[0].m_height;
-      final secondNodeHeight = m_height - firstNodeHeight;
-      m_nodes[1].resize(m_width, secondNodeHeight);
+    } else if (splitDirection == NodeSplitDirection.HORIZONTAL) {
+      final firstNodeWidth = nodes[0].width;
+      final secondNodeWidth = width - firstNodeWidth;
+      nodes[1].resize(secondNodeWidth, height);
+    } else if (splitDirection == NodeSplitDirection.VERTICAL) {
+      final firstNodeHeight = nodes[0].height;
+      final secondNodeHeight = height - firstNodeHeight;
+      nodes[1].resize(width, secondNodeHeight);
+    }
+  }
+
+  /**
+   * Renders the node and its children.
+   */
+  public function render(ui:Kimgui, theme:Theme) {
+    // This is a parent node, so delegate rendering to children
+    if (nodes.length > 0) {
+      for (node in nodes) {
+        node.render(ui, theme);
+      }
+      return;
+    }
+    
+    // Bailout of rendering if there are no windows
+    if (windows.length == 0) {
+      return;
+    }
+
+    var bodyX = x + theme.WINDOW_BORDER_SIZE;
+    var bodyY = y + theme.WINDOW_BORDER_SIZE + theme.WINDOW_TITLEBAR_HEIGHT;
+    var bodyWidth = width - (theme.WINDOW_BORDER_SIZE * 2);
+    var bodyHeight = height - (theme.WINDOW_BORDER_SIZE * 2) - theme.WINDOW_TITLEBAR_HEIGHT;
+
+    var titleX = x + theme.WINDOW_BORDER_SIZE;
+    var titleY = y + theme.WINDOW_BORDER_SIZE;
+    var titleWidth = width - (theme.WINDOW_BORDER_SIZE * 2);
+    var titleHeight = theme.WINDOW_TITLEBAR_HEIGHT;
+
+    // Draw border first
+    ui.drawRect(x, y, width, height, theme.WINDOW_BORDER_COLOR);
+
+    // Draw title bar
+    ui.drawRect(titleX, titleY, titleWidth, titleHeight, theme.WINDOW_BORDER_COLOR);
+
+    // Render the child windows
+    var titleBarX = titleX;
+    for (window in windows) {
+      // Draw window tab
+      var tabBackgrondColor = (m_activeWindow == window) ? theme.WINDOW_TITLEBAR_ACTIVE_COLOR : theme.WINDOW_TITLEBAR_COLOR;
+      var tabWidth = ui.options.font.width(theme.WINDOW_TITLE_BAR_FONT_SIZE, window.title) + (theme.WINDOW_TITLE_BAR_PADDING * 2);
+      ui.drawRect(titleBarX, titleY, tabWidth, titleHeight, tabBackgrondColor);
+
+      // Draw window title
+      ui.drawString(
+        window.title,
+        titleBarX + theme.WINDOW_TITLE_BAR_PADDING,
+        titleY + theme.WINDOW_TITLE_BAR_PADDING,
+        theme.WINDOW_TITLEBAR_TEXT_COLOR,
+        theme.WINDOW_TITLE_BAR_FONT_SIZE
+      );
+
+      // Set the active window if the user clicks on the window tab
+      if (ui.getInputInRect(titleBarX, titleY, tabWidth, titleHeight) && ui.inputStarted) {
+        m_activeWindow = window;
+      }
+
+      // Draw the active window
+      if (m_activeWindow == window) {
+        window.render(ui, theme, bodyX, bodyY, bodyWidth, bodyHeight);
+      }
+
+      if (highlighted) {
+        ui.drawRect(x, y, width, height, theme.NODE_HIGHLIGHT_COLOR);
+      }
+
+      titleBarX = titleBarX + tabWidth + 1;
     }
   }
 }
