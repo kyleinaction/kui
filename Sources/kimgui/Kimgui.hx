@@ -452,10 +452,10 @@ class Kimgui {
       return [node.x + node.width - width - innerOffset, centerY - halfHeight, width, height];
 
     } else if (direction == NodeSplitDirection.TOP) {
-      return [centerX - halfWidth, node.y + innerOffset, height, width];
+      return [centerX - halfHeight, node.y + innerOffset, height, width];
 
     } else if (direction == NodeSplitDirection.BOTTOM) {
-      return [centerX - halfWidth, node.y + node.height - height - innerOffset, height, width];
+      return [centerX - halfHeight, node.y + node.height - width - innerOffset, height, width];
     }
 
     return [0, 0, 0, 0];
