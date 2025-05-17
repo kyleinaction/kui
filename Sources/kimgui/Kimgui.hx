@@ -171,106 +171,6 @@ class Kimgui {
   }
 
   /**
-   * Merges two nodes together.
-   */
-  private function mergeNodes(baseNode: Node, nodeB: Node, axis: NodeSplitAxis, location: NodeSplitLocation, x:Float, y:Float) {
-    baseNode.x = x;
-    baseNode.y = y;
-
-    // Create a new node and apply nodeA's properties to it
-    var nodeA = new Node(NodeSplitAxis.NONE, 0, 0, baseNode.width, baseNode.height);
-    for (window in baseNode.windows) {
-      nodeA.addWindow(window);
-    }
-
-    // Remove all windows from nodeA
-    baseNode.windows = [];
-    baseNode.splitAxis = axis;
-    
-    m_nodes.remove(nodeB);
-
-    baseNode.addChild(nodeA);
-    baseNode.addChild(nodeB);
-
-    nodeA.x = 0;
-    nodeA.y = 0;
-
-    // Split horizontally
-    if (axis == NodeSplitAxis.HORIZONTAL) {
-      nodeB.y = 0;
-      
-      // If the split is outer, nodeB will attach to the right side of nodeA
-      if (location == NodeSplitLocation.OUTER) {
-        baseNode.width = nodeA.width + nodeB.width; 
-        baseNode.height = Math.max(nodeA.height, nodeB.height);
-        
-        // If the split is inner, both nodes will be 50% the width of the base node
-      } else {
-        nodeA.width = baseNode.width / 2;
-        nodeB.width = baseNode.width - nodeA.width;
-      }
-
-      nodeB.x = nodeA.width;
-      
-    // Split vertically
-    } else {
-      nodeB.x = 0;
-      
-      // If the split is outer, nodeB will attach to the bottom of nodeA
-      if (location == NodeSplitLocation.OUTER) {
-        baseNode.width = Math.max(nodeA.width, nodeB.width);
-        baseNode.height = nodeA.height + nodeB.height;
-        
-        // If the split is inner, both nodes will be 50% the height of the base node
-      } else {
-        nodeA.height = baseNode.height / 2;
-        nodeB.height = baseNode.height - nodeA.height;        
-      }
-      
-      nodeB.y = nodeA.height;
-    }
-  }
-
-  /**
-   * Handles the dragging of nodes.
-   * This will check to see if the input is within the bounds of a node and if so, it will set that node as the current dragging node.
-   */
-  private function handleDraggingNode(nodes: Array<Node>) {
-    for (node in nodes) {
-      if (node == m_draggingNode) {
-        continue;
-      }
-
-      var sx = node.getScreenX();
-      var sy = node.getScreenY();
-
-      // Check to see if there's a node we need to drag
-      if (m_draggingNode == null) {
-        if (getInputInRect(sx, sy, node.width, node.height) && inputStarted && node.parent == null) {
-          m_draggingNode = node;
-        }
-      } else {
-        // If the current node is not the one being dragged...
-        if (node != m_draggingNode) {
-          // ... check to see if the input is within the bounds of another unsplit node
-          if (getInputInRect(sx, sy, node.width, node.height) && node.nodes.length == 0) {
-            // If so, show and potentionally handle the drop zones
-            drawNodeDropZones(node);
-            if (handleNodeDropZones(node)) {
-              break;
-            }
-          }
-        }
-      }
-
-      // Process child nodes
-      if (node.nodes.length > 0) {
-        handleDraggingNode(node.nodes);
-      }
-    }
-  }
-
-  /**
    * Renders the final node/window contents.
    */
   public function end() {
@@ -426,6 +326,111 @@ class Kimgui {
 		inputReleasedR = false;
 		inputDX = 0;
 		inputDY = 0;
+  }
+
+  /**
+   * Handles the dragging of nodes.
+   * This will check to see if the input is within the bounds of a node and if so, it will set that node as the current dragging node.
+   */
+  private function handleDraggingNode(nodes: Array<Node>) {
+    for (node in nodes) {
+      if (node == m_draggingNode) {
+        continue;
+      }
+
+      var sx = node.getScreenX();
+      var sy = node.getScreenY();
+
+      // Check to see if there's a node we need to drag
+      if (m_draggingNode == null) {
+        if (getInputInRect(sx, sy, node.width, node.height) && inputStarted && node.parent == null) {
+          m_draggingNode = node;
+        }
+      } else {
+        // If the current node is not the one being dragged...
+        if (node != m_draggingNode) {
+          // ... check to see if the input is within the bounds of another unsplit node
+          if (getInputInRect(sx, sy, node.width, node.height) && node.nodes.length == 0) {
+            // If so, show and potentionally handle the drop zones
+            drawNodeDropZones(node);
+            if (handleNodeDropZones(node)) {
+              break;
+            }
+          }
+        }
+      }
+
+      // Process child nodes
+      if (node.nodes.length > 0) {
+        handleDraggingNode(node.nodes);
+      }
+    }
+  }
+
+  /**
+   * Merges two nodes together.
+   */
+  private function mergeNodes(baseNode: Node, nodeB: Node, axis: NodeSplitAxis, location: NodeSplitLocation, x:Float, y:Float) {
+    baseNode.x = x;
+    baseNode.y = y;
+
+    // Create a new node and apply nodeA's properties to it
+    var nodeA = new Node(NodeSplitAxis.NONE, 0, 0, baseNode.width, baseNode.height);
+    for (window in baseNode.windows) {
+      nodeA.addWindow(window);
+    }
+
+    // Remove all windows from nodeA
+    baseNode.windows = [];
+    baseNode.splitAxis = axis;
+    
+    m_nodes.remove(nodeB);
+
+    baseNode.addChild(nodeA);
+    baseNode.addChild(nodeB);
+
+    nodeA.x = 0;
+    nodeA.y = 0;
+
+    // Split horizontally
+    if (axis == NodeSplitAxis.HORIZONTAL) {
+      nodeB.y = 0;
+      
+      // If the split is outer, nodeB will attach to the right side of nodeA
+      if (location == NodeSplitLocation.OUTER) {
+        // baseNode.width = nodeA.width + nodeB.width; 
+        // baseNode.height = Math.max(nodeA.height, nodeB.height);
+        
+        baseNode.resize(nodeA.width + nodeB.width, Math.max(nodeA.height, nodeB.height));
+        baseNode.resizeAncestors();
+
+        // If the split is inner, both nodes will be 50% the width of the base node
+      } else {
+        nodeA.width = baseNode.width / 2;
+        nodeB.width = baseNode.width - nodeA.width;
+      }
+
+      nodeB.x = nodeA.width;
+      
+    // Split vertically
+    } else {
+      nodeB.x = 0;
+      
+      // If the split is outer, nodeB will attach to the bottom of nodeA
+      if (location == NodeSplitLocation.OUTER) {
+        // baseNode.width = Math.max(nodeA.width, nodeB.width);
+        // baseNode.height = nodeA.height + nodeB.height;
+
+        baseNode.resize(Math.max(nodeA.width, nodeB.width), nodeA.height + nodeB.height);
+        baseNode.resizeAncestors();
+        // If the split is inner, both nodes will be 50% the height of the base node
+      } else {
+        nodeA.height = baseNode.height / 2;
+        nodeB.height = baseNode.height - nodeA.height;        
+      }
+      
+      nodeB.y = nodeA.height;
+    }
   }
 
   /**

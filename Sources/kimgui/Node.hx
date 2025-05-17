@@ -161,6 +161,33 @@ class Node {
     }
   }
 
+  private function resizeToNodes() {
+    // Don't resize if there are no nodes
+    if (nodes.length == 0) {
+      return;
+    }
+
+    if (splitAxis == NodeSplitAxis.NONE) {
+      return;
+    } else if (splitAxis == NodeSplitAxis.HORIZONTAL) {
+      final width = nodes[0].width + nodes[1].width;
+      final height = Math.max(nodes[0].height, nodes[1].height);
+      resize(width, height);
+
+    } else if (splitAxis == NodeSplitAxis.VERTICAL) {
+      final width = Math.max(nodes[0].width, nodes[1].width);
+      final height = nodes[0].height + nodes[1].height;
+      resize(width, height);
+    }
+  }
+
+  public function resizeAncestors() {
+    if (parent != null) {
+      parent.resizeToNodes();
+      parent.resizeAncestors();
+    }
+  }
+
   /**
    * Renders the node and its children.
    */
