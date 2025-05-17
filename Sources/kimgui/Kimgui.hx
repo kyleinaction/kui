@@ -156,14 +156,13 @@ class Kimgui {
    */
   public function begin(g: Graphics) {
     this.g = g;
-    handleDraggingNode();
   }
 
   /**
    * Merges two nodes together.
    * This will remove the first node and add all of its windows to the second node.
    */
-  private function mergeNodes(nodeA: Node, nodeB: Node) {
+  private function mergeNodeWindows(nodeA: Node, nodeB: Node) {
     for (window in nodeA.windows) {
       nodeB.addWindow(window);
     }
@@ -172,13 +171,80 @@ class Kimgui {
   }
 
   /**
+   * Merges two nodes together.
+   */
+  private function mergeNodes(baseNode: Node, nodeB: Node, axis: NodeSplitAxis, location: NodeSplitLocation) {
+    // Create a new node and apply nodeA's properties to it
+    var nodeA = new Node(NodeSplitAxis.NONE, baseNode.x, baseNode.y, baseNode.width, baseNode.height);
+    for (window in baseNode.windows) {
+      nodeA.addWindow(window);
+    }
+
+    nodeA.x = baseNode.x;
+    nodeA.y = baseNode.y;
+
+    nodeA.width = baseNode.width;
+    nodeA.height = baseNode.height;
+
+    // Remove all windows from nodeA
+    baseNode.windows = [];
+    baseNode.splitAxis = axis;
+
+    // Remove nodeB from it's original parent
+    if (nodeB.parent != null) {
+      nodeB.parent.nodes.remove(nodeB);
+    } else {
+      // If nodeB has no parent, remove it from the main list
+      m_nodes.remove(nodeB);
+    }
+
+    baseNode.nodes.push(nodeA);
+    baseNode.nodes.push(nodeB);
+
+    // Split horizontally
+    if (axis == NodeSplitAxis.HORIZONTAL) {
+      // If the split is outer, nodeB will attach to the right side of nodeA
+      if (location == NodeSplitLocation.OUTER) {
+        baseNode.width = nodeA.width + nodeB.width; 
+        baseNode.height = Math.max(nodeA.height, nodeB.height);
+
+        nodeB.x = nodeA.x + nodeA.width;
+        nodeB.y = baseNode.y;
+
+      // If the split is inner, both nodes will be 50% the width of the base node
+      } else {
+        nodeA.width = baseNode.width / 2;
+        nodeB.width = baseNode.width - nodeA.width;
+        nodeB.x = nodeA.x + nodeA.width;
+        nodeB.y = baseNode.y;
+      }
+
+    // Split vertically
+    } else {
+      // If the split is outer, nodeB will attach to the bottom of nodeA
+      if (location == NodeSplitLocation.OUTER) {
+        baseNode.width = Math.max(nodeA.width, nodeB.width);
+        baseNode.height = nodeA.height + nodeB.height;
+
+        nodeB.x = baseNode.x;
+        nodeB.y = nodeA.y + nodeA.height;
+
+      // If the split is inner, both nodes will be 50% the height of the base node
+      } else {
+        nodeA.height = baseNode.height / 2;
+        nodeB.height = baseNode.height - nodeA.height;
+        nodeB.x = baseNode.x;
+        nodeB.y = nodeA.y + nodeA.height;
+      }
+    }
+  }
+
+  /**
    * Handles the dragging of nodes.
    * This will check to see if the input is within the bounds of a node and if so, it will set that node as the current dragging node.
    */
   private function handleDraggingNode() {
     for (node in m_nodes) {
-      node.highlighted = false;
-
       // Check to see if there's a node we need to drag
       if (m_draggingNode == null) {
         if (getInputInRect(node.x, node.y, node.width, node.height) && inputStarted && node.parent == null) {
@@ -187,39 +253,30 @@ class Kimgui {
       } else {
         // If the current node is not the one being dragged...
         if (node != m_draggingNode) {
-          // ... check to see if the input is within the bounds of another node
-          if (getInputInRect(node.x, node.y, node.width, node.height)) {
-            node.highlighted = true;
-
-            // Merge the two nodes if one is dropped on the other
-            if (inputReleased) {
-              mergeNodes(m_draggingNode, node);
-            }
+          // ... check to see if the input is within the bounds of another unsplit node
+          if (getInputInRect(node.x, node.y, node.width, node.height) && node.nodes.length == 0) {
+            // If so, show and potentionally handle the drop zones
+            drawNodeDropZones(node);
+            handleNodeDropZones(node);
           }
         }
       }
     }
 
+    // Stop dragging if the mouse isn't down anymore
     if (inputReleased) {
       m_draggingNode = null;
     }
 
+    // Update the position of the dragged node
     if (m_draggingNode != null) {
       m_draggingNode.x = m_draggingNode.x + inputDX;
       m_draggingNode.y = m_draggingNode.y + inputDY;
-
-      // Check to see if the current input is within the bounces of another node
     }
   }
-  
-
-
-
-
-
 
   /**
-   * Renders the final window contents.
+   * Renders the final node/window contents.
    */
   public function end() {
     if (m_currentWindow != null) {
@@ -227,12 +284,12 @@ class Kimgui {
     }
 
     g.begin(false);
+      // Render node contents
+      for (node in m_nodes) {
+        node.render(this, m_options.theme);
+      }
 
-    // Render window contents
-    for (node in m_nodes) {
-      node.render(this, m_options.theme);
-    }
-
+      handleDraggingNode();
     g.end();
 
     endInput();
@@ -248,7 +305,7 @@ class Kimgui {
 
     if (handle.window == null) {
       // Create new node
-      var node = new Node(NodeSplitDirection.NONE, x, y, width, height);
+      var node = new Node(NodeSplitAxis.NONE, x, y, width, height);
       m_nodes.push(node);
 
       // Create new window and add it to the node
@@ -363,5 +420,124 @@ class Kimgui {
 		inputReleasedR = false;
 		inputDX = 0;
 		inputDY = 0;
+  }
+
+  /**
+   * Returns the drop zone rectangle for a node given a direction (top, bottom, etc.) and location (inner, outer).
+   */
+  private function getNodeDropZoneRect(node: Node, direction: NodeSplitDirection, location: NodeSplitLocation): Array<Float> {
+    // Get the drop zone rectangle for the node
+    var centerX = node.x + (node.width / 2);
+    var centerY = node.y + (node.height / 2);
+
+    var size    = 30;
+    var height  = size;
+    var width   = size / 2;
+
+    var halfHeight = height / 2;
+    var halfWidth  = width / 2;
+
+    var innerOffset = 0.0;
+    if (location == NodeSplitLocation.INNER) {
+      innerOffset = width + 1.0;
+    }
+
+    if (direction == NodeSplitDirection.NONE) {
+      return [centerX - size / 2, centerY - size / 2, size, size];
+
+    } else if (direction == NodeSplitDirection.LEFT) {
+      return [node.x + innerOffset, centerY - halfHeight, width, height];
+
+    } else if (direction == NodeSplitDirection.RIGHT) {
+      return [node.x + node.width - width - innerOffset, centerY - halfHeight, width, height];
+
+    } else if (direction == NodeSplitDirection.TOP) {
+      return [centerX - halfWidth, node.y + innerOffset, height, width];
+
+    } else if (direction == NodeSplitDirection.BOTTOM) {
+      return [centerX - halfWidth, node.y + node.height - height - innerOffset, height, width];
+    }
+
+    return [0, 0, 0, 0];
+  }
+
+  /**
+   * Handles the drop zones for a node.
+   */
+  private function handleNodeDropZones(node: Node) {
+    if (!inputReleased) {
+      return;
+    }
+
+    handleNodeDropZone(node, NodeSplitDirection.LEFT,   NodeSplitLocation.OUTER);
+    handleNodeDropZone(node, NodeSplitDirection.LEFT,   NodeSplitLocation.INNER);
+    handleNodeDropZone(node, NodeSplitDirection.RIGHT,  NodeSplitLocation.OUTER);
+    handleNodeDropZone(node, NodeSplitDirection.RIGHT,  NodeSplitLocation.INNER);
+    handleNodeDropZone(node, NodeSplitDirection.TOP,    NodeSplitLocation.OUTER);
+    handleNodeDropZone(node, NodeSplitDirection.TOP,    NodeSplitLocation.INNER);
+    handleNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.INNER);
+    handleNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.OUTER);
+    handleNodeDropZone(node, NodeSplitDirection.NONE,   NodeSplitLocation.INNER);
+  }
+
+  /**
+   * Handles a single drop zone for a node.
+   * This will check to see if the input is within the bounds of a dropzone and if so,
+   * it will merge the node and the dragging node together.
+   */
+  private function handleNodeDropZone(node: Node, direction: NodeSplitDirection, location: NodeSplitLocation) {
+    var dropZone = getNodeDropZoneRect(node, direction, location);
+    var axis = NodeSplitAxis.HORIZONTAL;
+    if (direction == NodeSplitDirection.TOP || direction == NodeSplitDirection.BOTTOM) {
+      axis = NodeSplitAxis.VERTICAL;
+    }
+
+    // If we're in the drop zone.
+    if (getInputInRect(dropZone[0], dropZone[1], dropZone[2], dropZone[3])) {
+      // If we're dropping into the center node, we need to merge the windows, and not split.
+      if (direction == NodeSplitDirection.NONE) {
+        mergeNodeWindows(m_draggingNode, node);
+        return;
+      }
+
+      var nodeA = node;
+      var nodeB = m_draggingNode;
+
+      if (direction == NodeSplitDirection.LEFT) {
+        nodeA = m_draggingNode;
+        nodeB = node;
+      }
+
+      mergeNodes(nodeA, nodeB, axis, location);
+    }
+  }
+
+  /**
+   * Draws the drop zones for a node.
+   */
+  private function drawNodeDropZones(node: Node) {
+    drawNodeDropZone(node, NodeSplitDirection.LEFT,   NodeSplitLocation.OUTER);
+    drawNodeDropZone(node, NodeSplitDirection.LEFT,   NodeSplitLocation.INNER);
+    drawNodeDropZone(node, NodeSplitDirection.RIGHT,  NodeSplitLocation.OUTER);
+    drawNodeDropZone(node, NodeSplitDirection.RIGHT,  NodeSplitLocation.INNER);
+    drawNodeDropZone(node, NodeSplitDirection.TOP,    NodeSplitLocation.OUTER);
+    drawNodeDropZone(node, NodeSplitDirection.TOP,    NodeSplitLocation.INNER);
+    drawNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.INNER);
+    drawNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.OUTER);
+    drawNodeDropZone(node, NodeSplitDirection.NONE,   NodeSplitLocation.INNER);
+  }
+
+  /**
+   * Draws a single drop zone for a node.
+   */
+  private function drawNodeDropZone(node: Node, direction: NodeSplitDirection, location: NodeSplitLocation) {
+    var dropZone = getNodeDropZoneRect(node, direction, location);
+    var color = m_options.theme.NODE_HIGHLIGHT_COLOR;
+
+    if (getInputInRect(dropZone[0], dropZone[1], dropZone[2], dropZone[3])) {
+      color = m_options.theme.NODE_HIGHLIGHT_COLOR_ACTIVE;
+    }
+    
+    drawRect(dropZone[0], dropZone[1], dropZone[2], dropZone[3], color);
   }
 }

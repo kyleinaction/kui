@@ -1,7 +1,12 @@
 package kimgui;
 
+/**
+ * Enum representing the direction of a node split.
+ */
 enum NodeSplitDirection {
   NONE;
-  HORIZONTAL;
-  VERTICAL;
+  LEFT;
+  RIGHT;
+  TOP;
+  BOTTOM;
 }

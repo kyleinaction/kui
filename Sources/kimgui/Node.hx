@@ -1,5 +1,6 @@
 package kimgui;
 
+import kha.Color;
 import haxe.Exception;
 
 /**
@@ -29,9 +30,9 @@ class Node {
   private var m_activeWindow: Window;
 
   /**
-   * The split direction of this node if it is a split node.
+   * The split axis of this node if it is a split node.
    */
-  private var splitDirection: NodeSplitDirection;
+  public var splitAxis: NodeSplitAxis;
 
   /**
    * The x position of this node.
@@ -58,11 +59,13 @@ class Node {
    */
   public var highlighted: Bool = false;
 
+  private var m_debugColor: Int;
+
   /**
    * The constructor for the Node class.
    */
-  public function new(splitDirection: NodeSplitDirection, x:Float = 0, y:Float = 0, width:Float = 0, height:Float = 0) {
-    this.splitDirection = splitDirection;
+  public function new(splitAxis: NodeSplitAxis, x:Float = 0, y:Float = 0, width:Float = 0, height:Float = 0) {
+    this.splitAxis = splitAxis;
     windows   = [];
     nodes     = [];
 
@@ -70,6 +73,8 @@ class Node {
     this.y         = y;
     this.width     = width;
     this.height    = height;
+
+    this.m_debugColor = Color.fromFloats(Math.random(), Math.random(), Math.random(), 0.25);
   }
 
   /**
@@ -105,13 +110,13 @@ class Node {
       return;
     }
 
-    if (splitDirection == NodeSplitDirection.NONE) {
+    if (splitAxis == NodeSplitAxis.NONE) {
       return;
-    } else if (splitDirection == NodeSplitDirection.HORIZONTAL) {
+    } else if (splitAxis == NodeSplitAxis.HORIZONTAL) {
       final firstNodeWidth = nodes[0].width;
       final secondNodeWidth = width - firstNodeWidth;
       nodes[1].resize(secondNodeWidth, height);
-    } else if (splitDirection == NodeSplitDirection.VERTICAL) {
+    } else if (splitAxis == NodeSplitAxis.VERTICAL) {
       final firstNodeHeight = nodes[0].height;
       final secondNodeHeight = height - firstNodeHeight;
       nodes[1].resize(width, secondNodeHeight);
@@ -122,6 +127,9 @@ class Node {
    * Renders the node and its children.
    */
   public function render(ui:Kimgui, theme:Theme) {
+    
+    // ui.drawRect(x - 10, y - 10, width + 20, height + 20, m_debugColor);
+
     // This is a parent node, so delegate rendering to children
     if (nodes.length > 0) {
       for (node in nodes) {

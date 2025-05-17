@@ -9,6 +9,7 @@ typedef Theme = {
   var WINDOW_BORDER_SIZE: Float;
 
   var NODE_HIGHLIGHT_COLOR: Int;
+  var NODE_HIGHLIGHT_COLOR_ACTIVE: Int;
 
   var WINDOW_TITLEBAR_TEXT_COLOR: Int;
   var WINDOW_TITLEBAR_COLOR: Int;
