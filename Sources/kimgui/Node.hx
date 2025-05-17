@@ -78,6 +78,44 @@ class Node {
   }
 
   /**
+   * Adds a child node to this node.
+   */
+  public function addChild(node: Node) {
+    if (nodes.length >= 2) {
+      throw "Cannot add more than 2 child nodes";
+    }
+
+    if (node.parent != null) {
+      node.parent.nodes.remove(node);
+    }
+
+    node.parent = this;
+    nodes.push(node);
+  }
+
+  /**
+   * Returns the absolute x position of the node on the screen.
+   */
+  public function getScreenX(): Float {
+    if (parent == null) {
+      return x;
+    } else {
+      return parent.getScreenX() + x;
+    }
+  }
+
+  /**
+   * Returns the absolute y position of the node on the screen.
+   */
+  public function getScreenY(): Float {
+    if (parent == null) {
+      return y;
+    } else {
+      return parent.getScreenY() + y;
+    }
+  }
+
+  /**
    * Resizes the node to the given width and height. This will also resize all child nodes.
    */
   public function resize(width: Float, height: Float) {
@@ -127,8 +165,10 @@ class Node {
    * Renders the node and its children.
    */
   public function render(ui:Kimgui, theme:Theme) {
-    
-    // ui.drawRect(x - 10, y - 10, width + 20, height + 20, m_debugColor);
+    var sx = getScreenX();
+    var sy = getScreenY();
+
+    // ui.drawRect(sx - 10, sy - 10, width + 20, height + 20, m_debugColor);
 
     // This is a parent node, so delegate rendering to children
     if (nodes.length > 0) {
@@ -143,18 +183,18 @@ class Node {
       return;
     }
 
-    var bodyX = x + theme.WINDOW_BORDER_SIZE;
-    var bodyY = y + theme.WINDOW_BORDER_SIZE + theme.WINDOW_TITLEBAR_HEIGHT;
+    var bodyX = sx + theme.WINDOW_BORDER_SIZE;
+    var bodyY = sy + theme.WINDOW_BORDER_SIZE + theme.WINDOW_TITLEBAR_HEIGHT;
     var bodyWidth = width - (theme.WINDOW_BORDER_SIZE * 2);
     var bodyHeight = height - (theme.WINDOW_BORDER_SIZE * 2) - theme.WINDOW_TITLEBAR_HEIGHT;
 
-    var titleX = x + theme.WINDOW_BORDER_SIZE;
-    var titleY = y + theme.WINDOW_BORDER_SIZE;
+    var titleX = sx + theme.WINDOW_BORDER_SIZE;
+    var titleY = sy + theme.WINDOW_BORDER_SIZE;
     var titleWidth = width - (theme.WINDOW_BORDER_SIZE * 2);
     var titleHeight = theme.WINDOW_TITLEBAR_HEIGHT;
 
     // Draw border first
-    ui.drawRect(x, y, width, height, theme.WINDOW_BORDER_COLOR);
+    ui.drawRect(sx, sy, width, height, theme.WINDOW_BORDER_COLOR);
 
     // Draw title bar
     ui.drawRect(titleX, titleY, titleWidth, titleHeight, theme.WINDOW_BORDER_COLOR);
@@ -187,7 +227,7 @@ class Node {
       }
 
       if (highlighted) {
-        ui.drawRect(x, y, width, height, theme.NODE_HIGHLIGHT_COLOR);
+        ui.drawRect(sx, sy, width, height, theme.NODE_HIGHLIGHT_COLOR);
       }
 
       titleBarX = titleBarX + tabWidth + 1;
