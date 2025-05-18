@@ -142,7 +142,9 @@ class Kimgui {
    * This will resize all nodes to the given width and height.
    */
   public function setWindowSize(width: Float, height: Float) {
-    m_screenNode.resize(width, height);
+    if (m_screenNode.width != width || m_screenNode.height != height) {
+      m_screenNode.resize(width, height);
+    }
   }
 
   /**
@@ -162,12 +164,17 @@ class Kimgui {
   /**
    * Merges two nodes together.
    * This will remove the first node and add all of its windows to the second node.
+   *
+   * @TODO: this needs to be updated to be recursive. All windows belongs to all children of nodeA 
    */
   private function mergeNodeWindows(nodeA: Node, nodeB: Node) {
-    for (window in nodeA.windows) {
+    final windows = nodeA.getDescendantWindowsAndUnset();
+
+    for (window in windows) {
       nodeB.addWindow(window);
     }
 
+    nodeA.windows = [];
     m_nodes.remove(nodeA);
   }
 
@@ -371,7 +378,7 @@ class Kimgui {
   /**
    * Merges two nodes together.
    */
-  private function mergeNodes(baseNode: Node, nodeB: Node, direction: NodeSplitDirection, location: NodeSplitLocation, x:Float, y:Float, w:Float, h:Float) {
+  private function mergeNodes(baseNode: Node, nodeB: Node, direction: NodeSplitDirection, x:Float, y:Float, w:Float, h:Float) {
     baseNode.x = x;
     baseNode.y = y;
 
@@ -410,44 +417,28 @@ class Kimgui {
 
     // Split horizontally
     if (axis == NodeSplitAxis.HORIZONTAL) {
-      nodeB.y = 0;
+
+      nodeA.width = baseNode.width / 2;
+      nodeB.width = baseNode.width - nodeA.width;
+
+      nodeA.height = baseNode.height;
+      nodeB.height = baseNode.height;
       
-      // If the split is outer, nodeB will attach to the right side of nodeA
-      if (location == NodeSplitLocation.OUTER) {
-        baseNode.resize(nodeA.width + nodeB.width, Math.max(nodeA.height, nodeB.height));
-
-        // If the split is inner, both nodes will be 50% the width of the base node
-      } else {
-        nodeA.width = baseNode.width / 2;
-        nodeB.width = baseNode.width - nodeA.width;
-        nodeA.height = h;
-        nodeB.height = h;
-      }
-
+      nodeB.y = 0;
       nodeB.x = nodeA.width;
       
     // Split vertically
     } else {
+      nodeA.height = baseNode.height / 2;
+      nodeB.height = baseNode.height - nodeA.height;        
+      nodeA.width  = baseNode.width;
+      nodeB.width  = baseNode.width;
+      
       nodeB.x = 0;
-      
-      // If the split is outer, nodeB will attach to the bottom of nodeA
-      if (location == NodeSplitLocation.OUTER) {
-        baseNode.resize(Math.max(nodeA.width, nodeB.width), nodeA.height + nodeB.height);
-
-      // If the split is inner, both nodes will be 50% the height of the base node
-      } else {
-        nodeA.height = baseNode.height / 2;
-        nodeB.height = baseNode.height - nodeA.height;        
-        nodeA.width  = w;
-        nodeB.width  = w;
-      }
-      
       nodeB.y = nodeA.height;
     }
 
-    baseNode.resizeToNodes();
     baseNode.resizeAncestors();
-    baseNode.resizeNodes();
   }
 
   /**
@@ -500,14 +491,10 @@ class Kimgui {
       return false;
     }
 
-    if (handleNodeDropZone(node, NodeSplitDirection.LEFT,   NodeSplitLocation.OUTER)) { return true; }
     if (handleNodeDropZone(node, NodeSplitDirection.LEFT,   NodeSplitLocation.INNER)) { return true; }
-    if (handleNodeDropZone(node, NodeSplitDirection.RIGHT,  NodeSplitLocation.OUTER)) { return true; }
     if (handleNodeDropZone(node, NodeSplitDirection.RIGHT,  NodeSplitLocation.INNER)) { return true; }
-    if (handleNodeDropZone(node, NodeSplitDirection.TOP,    NodeSplitLocation.OUTER)) { return true; }
     if (handleNodeDropZone(node, NodeSplitDirection.TOP,    NodeSplitLocation.INNER)) { return true; }
     if (handleNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.INNER)) { return true; }
-    if (handleNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.OUTER)) { return true; }
     if (handleNodeDropZone(node, NodeSplitDirection.NONE,   NodeSplitLocation.INNER)) { return true; }
     
     return false;
@@ -535,7 +522,7 @@ class Kimgui {
     var nodeA = node;
     var nodeB = m_draggingNode;
 
-    mergeNodes(nodeA, nodeB, direction, location, node.x, node.y, node.width, node.height);
+    mergeNodes(nodeA, nodeB, direction, node.x, node.y, node.width, node.height);
     return true;
   }
 
@@ -543,14 +530,10 @@ class Kimgui {
    * Draws the drop zones for a node.
    */
   private function drawNodeDropZones(node: Node) {
-    drawNodeDropZone(node, NodeSplitDirection.LEFT,   NodeSplitLocation.OUTER);
     drawNodeDropZone(node, NodeSplitDirection.LEFT,   NodeSplitLocation.INNER);
-    drawNodeDropZone(node, NodeSplitDirection.RIGHT,  NodeSplitLocation.OUTER);
     drawNodeDropZone(node, NodeSplitDirection.RIGHT,  NodeSplitLocation.INNER);
-    drawNodeDropZone(node, NodeSplitDirection.TOP,    NodeSplitLocation.OUTER);
     drawNodeDropZone(node, NodeSplitDirection.TOP,    NodeSplitLocation.INNER);
     drawNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.INNER);
-    drawNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.OUTER);
     drawNodeDropZone(node, NodeSplitDirection.NONE,   NodeSplitLocation.INNER);
   }
 

@@ -123,13 +123,31 @@ class Node {
   /**
    * Resizes the node to the given width and height. This will also resize all child nodes.
    */
-  public function resize(width: Float, height: Float) {
-    if (this.width != width || this.height != height) {
-      this.width = width;
-      this.height = height;
+  public function resize(w: Float, h: Float, force: Bool = false) {
+    if (width != w || height != h || force) {
+      width = w;
+      height = h;
 
       resizeNodes();
     }
+  }
+
+  /**
+   * Returns all descendant windows of this node, and unsets the window array.
+   */
+  public function getDescendantWindowsAndUnset(wins: Array<Window> = null): Array<Window> {
+    if (wins == null) { wins = []; }
+    
+    for (window in windows) {
+      wins.push(window);
+    }
+
+    for (node in nodes) {
+      wins = node.getDescendantWindowsAndUnset(wins);
+    }
+
+    windows = [];
+    return wins;
   }
 
   /**
@@ -156,45 +174,38 @@ class Node {
     if (splitAxis == NodeSplitAxis.NONE) {
       return;
     } else if (splitAxis == NodeSplitAxis.HORIZONTAL) {
-      final firstNodeWidth = nodes[0].width;
+      final ratio = nodes[0].width / nodes[1].width;
+      final targetWidth = width / 2;
+      final firstNodeWidth = targetWidth * ratio;
       final secondNodeWidth = width - firstNodeWidth;
+
+      nodes[0].resize(firstNodeWidth, height, true);
+      nodes[1].resize(secondNodeWidth, height, true);
+      nodes[1].x = firstNodeWidth;
       
-      nodes[0].resize(firstNodeWidth, height);
-      nodes[1].resize(secondNodeWidth, height);
-
     } else if (splitAxis == NodeSplitAxis.VERTICAL) {
-      final firstNodeHeight = nodes[0].height;
+      final ratio = nodes[0].height / nodes[1].height;
+      final targetHeight = height / 2;
+      final firstNodeHeight = targetHeight * ratio;
       final secondNodeHeight = height - firstNodeHeight;
-      nodes[0].resize(width, firstNodeHeight);
-      nodes[1].resize(width, secondNodeHeight);
+
+      nodes[0].resize(width, firstNodeHeight, true);
+      nodes[1].resize(width, secondNodeHeight, true);
+
+      nodes[1].y = firstNodeHeight;
     }
   }
 
-  public function resizeToNodes() {
-    // Don't resize if there are no nodes
-    if (nodes.length == 0) {
-      return;
-    }
-
-    if (splitAxis == NodeSplitAxis.NONE) {
-      return;
-    } else if (splitAxis == NodeSplitAxis.HORIZONTAL) {
-      final width = nodes[0].width + nodes[1].width;
-      final height = Math.max(nodes[0].height, nodes[1].height);
-      resize(width, height);
-
-    } else if (splitAxis == NodeSplitAxis.VERTICAL) {
-      final width = Math.max(nodes[0].width, nodes[1].width);
-      final height = nodes[0].height + nodes[1].height;
-      resize(width, height);
-    }
-  }
-
+  /**
+   * Resizes the ancestors of this node. This will resize all the child nodes of the root node.
+   */
   public function resizeAncestors() {
     if (parent != null) {
-      parent.resizeToNodes();
+      // Drill down to the root node
       parent.resizeAncestors();
-      parent.resizeNodes();
+    } else {
+      // Resize all the children of the root node
+      resizeNodes();
     }
   }
 
@@ -205,7 +216,8 @@ class Node {
     var sx = getScreenX();
     var sy = getScreenY();
 
-    // ui.drawRect(sx - 10, sy - 10, width + 20, height + 20, m_debugColor);
+    // Draw debug border
+    ui.drawRect(sx - 10, sy - 10, width + 20, height + 20, m_debugColor);
 
     // This is a parent node, so delegate rendering to children
     if (nodes.length > 0) {
