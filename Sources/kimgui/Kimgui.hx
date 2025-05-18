@@ -378,7 +378,7 @@ class Kimgui {
   /**
    * Merges two nodes together.
    */
-  private function mergeNodes(baseNode: Node, nodeB: Node, direction: NodeSplitDirection, x:Float, y:Float, w:Float, h:Float) {
+  private function mergeNodes(baseNode: Node, nodeB: Node, direction: NodeSplitDirection, location: NodeSplitLocation, x:Float, y:Float, w:Float, h:Float) {
     baseNode.x = x;
     baseNode.y = y;
 
@@ -415,10 +415,15 @@ class Kimgui {
     nodeA.x = 0;
     nodeA.y = 0;
 
+    var divisor = 2.0;
+    if (location == NodeSplitLocation.OUTER) {
+      divisor = 2.5;
+    }
+
     // Split horizontally
     if (axis == NodeSplitAxis.HORIZONTAL) {
 
-      nodeA.width = baseNode.width / 2;
+      nodeA.width = baseNode.width / divisor;
       nodeB.width = baseNode.width - nodeA.width;
 
       nodeA.height = baseNode.height;
@@ -429,7 +434,7 @@ class Kimgui {
       
     // Split vertically
     } else {
-      nodeA.height = baseNode.height / 2;
+      nodeA.height = baseNode.height / divisor;
       nodeB.height = baseNode.height - nodeA.height;        
       nodeA.width  = baseNode.width;
       nodeB.width  = baseNode.width;
@@ -492,11 +497,19 @@ class Kimgui {
     }
 
     if (handleNodeDropZone(node, NodeSplitDirection.LEFT,   NodeSplitLocation.INNER)) { return true; }
+    if (handleNodeDropZone(node, NodeSplitDirection.LEFT,   NodeSplitLocation.OUTER)) { return true; }
+
     if (handleNodeDropZone(node, NodeSplitDirection.RIGHT,  NodeSplitLocation.INNER)) { return true; }
+    if (handleNodeDropZone(node, NodeSplitDirection.RIGHT,  NodeSplitLocation.OUTER)) { return true; }
+
     if (handleNodeDropZone(node, NodeSplitDirection.TOP,    NodeSplitLocation.INNER)) { return true; }
+    if (handleNodeDropZone(node, NodeSplitDirection.TOP,    NodeSplitLocation.OUTER)) { return true; }
+
     if (handleNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.INNER)) { return true; }
+    if (handleNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.OUTER)) { return true; }
+
     if (handleNodeDropZone(node, NodeSplitDirection.NONE,   NodeSplitLocation.INNER)) { return true; }
-    
+  
     return false;
   }
 
@@ -522,7 +535,7 @@ class Kimgui {
     var nodeA = node;
     var nodeB = m_draggingNode;
 
-    mergeNodes(nodeA, nodeB, direction, node.x, node.y, node.width, node.height);
+    mergeNodes(nodeA, nodeB, direction, location, node.x, node.y, node.width, node.height);
     return true;
   }
 
@@ -531,9 +544,17 @@ class Kimgui {
    */
   private function drawNodeDropZones(node: Node) {
     drawNodeDropZone(node, NodeSplitDirection.LEFT,   NodeSplitLocation.INNER);
+    drawNodeDropZone(node, NodeSplitDirection.LEFT,   NodeSplitLocation.OUTER);
+
     drawNodeDropZone(node, NodeSplitDirection.RIGHT,  NodeSplitLocation.INNER);
+    drawNodeDropZone(node, NodeSplitDirection.RIGHT,  NodeSplitLocation.OUTER);
+
     drawNodeDropZone(node, NodeSplitDirection.TOP,    NodeSplitLocation.INNER);
+    drawNodeDropZone(node, NodeSplitDirection.TOP,    NodeSplitLocation.OUTER);
+
     drawNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.INNER);
+    drawNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.OUTER);
+    
     drawNodeDropZone(node, NodeSplitDirection.NONE,   NodeSplitLocation.INNER);
   }
 
