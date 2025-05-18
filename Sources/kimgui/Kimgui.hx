@@ -112,8 +112,9 @@ class Kimgui {
    */
   public function new(options: Options) {
     m_nodes = [];
-    // m_screenNode = new Node(NodeSplitDirection.NONE);
-    // m_nodes.push(m_screenNode);
+    m_screenNode = new Node(NodeSplitAxis.NONE);
+    m_screenNode.draggable = false;
+    m_nodes.push(m_screenNode);
     m_options = options;
 
     if (m_options.theme == null) {
@@ -141,7 +142,7 @@ class Kimgui {
    * This will resize all nodes to the given width and height.
    */
   public function setWindowSize(width: Float, height: Float) {
-    // m_screenNode.resize(width, height);
+    m_screenNode.resize(width, height);
   }
 
   /**
@@ -343,7 +344,7 @@ class Kimgui {
 
       // Check to see if there's a node we need to drag
       if (m_draggingNode == null) {
-        if (getInputInRect(sx, sy, node.width, node.height) && inputStarted && node.parent == null) {
+        if (getInputInRect(sx, sy, node.width, node.height) && inputStarted && node.parent == null && node.draggable) {
           m_draggingNode = node;
         }
       } else {
@@ -444,8 +445,9 @@ class Kimgui {
       nodeB.y = nodeA.height;
     }
 
-    baseNode.resizeNodes();
+    baseNode.resizeToNodes();
     baseNode.resizeAncestors();
+    baseNode.resizeNodes();
   }
 
   /**

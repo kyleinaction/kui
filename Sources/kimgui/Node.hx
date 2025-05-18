@@ -55,6 +55,11 @@ class Node {
   public var height: Float;
 
   /**
+   * Whether this node is draggable or not. 
+   */
+  public var draggable: Bool = true;
+
+  /**
    * Whether this node is highlighted or not. This is used for dragging nodes.
    */
   public var highlighted: Bool = false;
