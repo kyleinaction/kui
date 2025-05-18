@@ -217,7 +217,7 @@ class Node {
     var sy = getScreenY();
 
     // Draw debug border
-    ui.drawRect(sx - 10, sy - 10, width + 20, height + 20, m_debugColor);
+    // ui.drawRect(sx - 10, sy - 10, width + 20, height + 20, m_debugColor);
 
     // This is a parent node, so delegate rendering to children
     if (nodes.length > 0) {
