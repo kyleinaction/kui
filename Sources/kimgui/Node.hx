@@ -142,7 +142,7 @@ class Node {
   /**
    * Resizes the child nodes.
    */
-  private function resizeNodes() {
+  public function resizeNodes() {
     // Don't resize if there are no nodes
     if (nodes.length == 0) {
       return;
@@ -153,15 +153,19 @@ class Node {
     } else if (splitAxis == NodeSplitAxis.HORIZONTAL) {
       final firstNodeWidth = nodes[0].width;
       final secondNodeWidth = width - firstNodeWidth;
+      
+      nodes[0].resize(firstNodeWidth, height);
       nodes[1].resize(secondNodeWidth, height);
+
     } else if (splitAxis == NodeSplitAxis.VERTICAL) {
       final firstNodeHeight = nodes[0].height;
       final secondNodeHeight = height - firstNodeHeight;
+      nodes[0].resize(width, firstNodeHeight);
       nodes[1].resize(width, secondNodeHeight);
     }
   }
 
-  private function resizeToNodes() {
+  public function resizeToNodes() {
     // Don't resize if there are no nodes
     if (nodes.length == 0) {
       return;
@@ -185,6 +189,7 @@ class Node {
     if (parent != null) {
       parent.resizeToNodes();
       parent.resizeAncestors();
+      parent.resizeNodes();
     }
   }
 
