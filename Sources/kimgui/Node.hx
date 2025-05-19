@@ -35,6 +35,12 @@ class Node {
   public var splitAxis: NodeSplitAxis;
 
   /**
+   * The split ratio of this node if it is a split node. This is the ratio of the first child node
+   * to the total width/height of the parent node.
+   */
+  public var splitRatio: Float;
+
+  /**
    * The x position of this node.
    */
   public var x: Float;
@@ -58,6 +64,11 @@ class Node {
    * Whether this node is draggable or not. 
    */
   public var draggable: Bool = true;
+
+  /**
+   * Whether this node is resizable or not. 
+   */
+  public var resizable: Bool = true;
 
   /**
    * Whether this node is highlighted or not. This is used for dragging nodes.
@@ -127,7 +138,6 @@ class Node {
     if (width != w || height != h || force) {
       width = w;
       height = h;
-
       resizeNodes();
     }
   }
@@ -174,9 +184,7 @@ class Node {
     if (splitAxis == NodeSplitAxis.NONE) {
       return;
     } else if (splitAxis == NodeSplitAxis.HORIZONTAL) {
-      final ratio = nodes[0].width / nodes[1].width;
-      final targetWidth = width / 2;
-      final firstNodeWidth = targetWidth * ratio;
+      final firstNodeWidth = width * splitRatio;
       final secondNodeWidth = width - firstNodeWidth;
 
       nodes[0].resize(firstNodeWidth, height, true);
@@ -184,9 +192,7 @@ class Node {
       nodes[1].x = firstNodeWidth;
       
     } else if (splitAxis == NodeSplitAxis.VERTICAL) {
-      final ratio = nodes[0].height / nodes[1].height;
-      final targetHeight = height / 2;
-      final firstNodeHeight = targetHeight * ratio;
+      final firstNodeHeight = height * splitRatio;
       final secondNodeHeight = height - firstNodeHeight;
 
       nodes[0].resize(width, firstNodeHeight, true);
@@ -281,5 +287,179 @@ class Node {
 
       titleBarX = titleBarX + tabWidth + 1;
     }
+  }
+
+  /**
+   * Returns the the ResizeHandle for this.
+   */
+  public function getResizingHandle(ui:Kimgui, theme:Theme):ResizingHandle {
+    if (!resizable) {
+      return null;
+    }
+
+    // Check top
+    var topRect = getResizeHandleRect(NodeSplitDirection.TOP, theme);
+    var bottomRect = getResizeHandleRect(NodeSplitDirection.BOTTOM, theme);
+    var leftRect = getResizeHandleRect(NodeSplitDirection.LEFT, theme);
+    var rightRect = getResizeHandleRect(NodeSplitDirection.RIGHT, theme);
+
+    if (ui.getInputInRect(topRect[0], topRect[1], topRect[2], topRect[3]) && ui.inputStarted) {
+      return {
+        node: this,
+        direction: NodeSplitDirection.TOP
+      };
+      
+    // Check Bottom
+    } else if (ui.getInputInRect(bottomRect[0], bottomRect[1], bottomRect[2], bottomRect[3]) && ui.inputStarted) {
+      return {
+        node: this,
+        direction: NodeSplitDirection.BOTTOM
+      };
+      
+    // Check Left
+    } else if (ui.getInputInRect(leftRect[0], leftRect[1], leftRect[2], leftRect[3]) && ui.inputStarted) {
+      return {
+        node: this,
+        direction: NodeSplitDirection.LEFT
+      };
+      
+    // Check Right 
+    } else if (ui.getInputInRect(rightRect[0], rightRect[1], rightRect[2], rightRect[3]) && ui.inputStarted) {
+      return {
+        node: this,
+        direction: NodeSplitDirection.RIGHT
+      };
+    }
+
+    return null;
+  }
+
+  /**
+   * Resizes the node in the given direction using input from the user.
+   */
+  public function doResize(ui:Kimgui, theme:Theme, direction:NodeSplitDirection):Void {
+    var sx = getScreenX();
+    var sy = getScreenY();
+
+    if (parent == null) {
+      if (direction == NodeSplitDirection.RIGHT) {
+        width = width + ui.inputDX;
+      } else if (direction == NodeSplitDirection.LEFT) {
+        width = width - ui.inputDX;
+        x = sx + ui.inputDX;
+      } else if (direction == NodeSplitDirection.BOTTOM) {
+        height = height + ui.inputDY;
+      } else if (direction == NodeSplitDirection.TOP) {
+        height = height - ui.inputDY;
+        y = sy + ui.inputDY;
+      }
+
+      this.resizeNodes();
+      return;
+    }
+
+    if (direction == NodeSplitDirection.RIGHT) {
+      width = width + ui.inputDX;
+
+      if (parent.nodes[0] == this) {
+        parent.nodes[1].resize(parent.width - this.width, parent.nodes[1].height);
+        parent.nodes[1].x = this.width;
+      } else {
+        parent.nodes[0].resize(parent.width - this.width, parent.nodes[0].height);
+      }
+      
+      parent.splitRatio = parent.nodes[0].width / parent.width;
+
+    } else if (direction == NodeSplitDirection.LEFT) {
+      width = width - ui.inputDX;
+      
+      if (parent.nodes[0] == this) {
+        parent.nodes[1].resize(parent.width - this.width, parent.nodes[1].height);
+      } else {
+        parent.nodes[0].resize(parent.width - this.width, parent.nodes[0].height);
+        parent.nodes[1].x = parent.nodes[0].width;
+      }
+
+      parent.splitRatio = parent.nodes[0].width / parent.width;
+
+    } else if (direction == NodeSplitDirection.BOTTOM) {
+      height = height + ui.inputDY;
+
+      if (parent.nodes[0] == this) {
+        parent.nodes[1].resize(parent.nodes[1].width, parent.height - this.height);
+        parent.nodes[1].y = this.height;
+      } else {
+        parent.nodes[0].resize(parent.nodes[0].width, parent.height - this.height);
+      }
+      
+      parent.splitRatio = parent.nodes[0].height / parent.height;
+
+    } else if (direction == NodeSplitDirection.TOP) {
+      height = height - ui.inputDY;
+
+      if (parent.nodes[0] == this) {
+        parent.nodes[1].resize(parent.nodes[1].width, parent.height - this.height);
+      } else {
+        parent.nodes[0].resize(parent.nodes[0].width, parent.height - this.height);
+      }
+
+      parent.splitRatio = parent.nodes[0].height / parent.height;
+    }
+
+    parent.resizeNodes();
+  }
+
+  /**
+   * Renders the resize handles for this node.
+   */
+  public function renderResizeHandles(ui:Kimgui, theme:Theme):Bool {
+    if (!resizable) {
+      return false;
+    }
+
+    // Check top
+    var topRect = getResizeHandleRect(NodeSplitDirection.TOP, theme);
+    var bottomRect = getResizeHandleRect(NodeSplitDirection.BOTTOM, theme);
+    var leftRect = getResizeHandleRect(NodeSplitDirection.LEFT, theme);
+    var rightRect = getResizeHandleRect(NodeSplitDirection.RIGHT, theme);
+
+    if (ui.getInputInRect(topRect[0], topRect[1], topRect[2], topRect[3])) {
+      ui.drawRect(topRect[0], topRect[1], topRect[2], topRect[3], theme.WINDOW_RESIZE_HANDLE_COLOR);
+      return true;
+    // Check Bottom
+    } else if (ui.getInputInRect(bottomRect[0], bottomRect[1], bottomRect[2], bottomRect[3])) {
+      ui.drawRect(bottomRect[0], bottomRect[1], bottomRect[2], bottomRect[3], theme.WINDOW_RESIZE_HANDLE_COLOR);
+      return true;
+    // Check Left
+    } else if (ui.getInputInRect(leftRect[0], leftRect[1], leftRect[2], leftRect[3])) {
+      ui.drawRect(leftRect[0], leftRect[1], leftRect[2], leftRect[3], theme.WINDOW_RESIZE_HANDLE_COLOR);
+      return true;
+    // Check Right 
+    } else if (ui.getInputInRect(rightRect[0], rightRect[1], rightRect[2], rightRect[3])) {
+      ui.drawRect(rightRect[0], rightRect[1], rightRect[2], rightRect[3], theme.WINDOW_RESIZE_HANDLE_COLOR);
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Returns the rectangle of the resize handle for the given direction.
+   */
+  private function getResizeHandleRect(direction: NodeSplitDirection, theme:Theme):Array<Float> {
+    var sx = getScreenX();
+    var sy = getScreenY();
+
+    if (direction == NodeSplitDirection.TOP) {
+      return [sx, sy, width, theme.WINDOW_RESIZE_HANDLE_THICKNESS];
+    } else if (direction == NodeSplitDirection.BOTTOM) {
+      return [sx, sy + height - theme.WINDOW_RESIZE_HANDLE_THICKNESS, width, theme.WINDOW_RESIZE_HANDLE_THICKNESS];
+    } else if (direction == NodeSplitDirection.LEFT) {
+      return [sx, sy, theme.WINDOW_RESIZE_HANDLE_THICKNESS, height];
+    } else if (direction == NodeSplitDirection.RIGHT) {
+      return [sx + width - theme.WINDOW_RESIZE_HANDLE_THICKNESS, sy, theme.WINDOW_RESIZE_HANDLE_THICKNESS, height];
+    }
+
+    throw "Invalid direction";
   }
 }

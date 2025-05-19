@@ -34,6 +34,16 @@ class Kimgui {
   private var m_draggingNode: Node;
 
   /**
+   * The current node handle being resized (if any).
+   */
+  private var m_resizingHandle: ResizingHandle;
+
+  /**
+   * True if the input is within the bounds of a node resize handle.
+   */
+  private var m_isHoveringNodeHandle: Bool;
+
+  /**
    * Current X position of the input.
    */
   public var inputX: Float;
@@ -114,6 +124,10 @@ class Kimgui {
     m_nodes = [];
     m_screenNode = new Node(NodeSplitAxis.NONE);
     m_screenNode.draggable = false;
+    m_screenNode.resizable = false;
+    
+    m_isHoveringNodeHandle = false;
+
     m_nodes.push(m_screenNode);
     m_options = options;
 
@@ -192,21 +206,49 @@ class Kimgui {
         node.render(this, m_options.theme);
       }
 
-      handleDraggingNode(m_nodes);
-      
-      // Update the position of the dragged node
-      if (m_draggingNode != null) {
-        m_draggingNode.x = m_draggingNode.x + inputDX;
-        m_draggingNode.y = m_draggingNode.y + inputDY;
-      }
-      
-      // Stop dragging if the mouse isn't down anymore
-      if (inputReleased) {
-        m_draggingNode = null;
-      }
+      endNodeResizing();
+      endNodeDragging();
     g.end();
 
     endInput();
+  }
+
+  /**
+   * Ends resizing node operations.
+   */
+  private function endNodeResizing() {
+    if (m_draggingNode == null) {
+      handleResizingNodes(m_nodes);
+    }
+
+    if (m_resizingHandle != null && inputReleased) {
+      m_resizingHandle = null;
+    }
+
+    if (m_resizingHandle != null) {
+      // Need to actually do the resizing stuff here
+      m_resizingHandle.node.doResize(this, m_options.theme, m_resizingHandle.direction);
+    }
+  }
+
+  /**
+   * Ends node dragging operations.
+   */
+  private function endNodeDragging() {
+    if (m_resizingHandle == null) {
+      handleDraggingNodes(m_nodes);
+    }
+    
+    // Update the position of the dragged node
+    if (m_draggingNode != null) {
+      m_draggingNode.x = m_draggingNode.x + inputDX;
+      m_draggingNode.y = m_draggingNode.y + inputDY;
+    }
+    
+    // Stop dragging if the mouse isn't down anymore
+    if (inputReleased) {
+      m_draggingNode = null;
+    }
   }
 
   /**
@@ -334,31 +376,55 @@ class Kimgui {
 		inputReleasedR = false;
 		inputDX = 0;
 		inputDY = 0;
+
+    m_isHoveringNodeHandle = false;
+  }
+
+  /**
+   * Finds a node, if any, to be resized.
+   */
+  private function handleResizingNodes(nodes: Array<Node>) {
+    for (node in nodes) {
+      if (node.renderResizeHandles(this, m_options.theme) && m_isHoveringNodeHandle == false) {
+        m_isHoveringNodeHandle = true;
+      }
+
+      if (m_resizingHandle == null) {
+        m_resizingHandle = node.getResizingHandle(this, m_options.theme);
+      }
+      
+      // Process child nodes
+      if (node.nodes.length > 0) {
+        handleResizingNodes(node.nodes);
+      }
+    }
   }
 
   /**
    * Handles the dragging of nodes.
    * This will check to see if the input is within the bounds of a node and if so, it will set that node as the current dragging node.
    */
-  private function handleDraggingNode(nodes: Array<Node>) {
+  private function handleDraggingNodes(nodes: Array<Node>) {
     for (node in nodes) {
       if (node == m_draggingNode) {
         continue;
       }
 
-      var sx = node.getScreenX();
-      var sy = node.getScreenY();
+      var sx = node.getScreenX() + m_options.theme.WINDOW_RESIZE_HANDLE_THICKNESS;
+      var sy = node.getScreenY() + m_options.theme.WINDOW_RESIZE_HANDLE_THICKNESS;
+      var width = node.width - m_options.theme.WINDOW_RESIZE_HANDLE_THICKNESS * 2;
+      var height = node.height - m_options.theme.WINDOW_RESIZE_HANDLE_THICKNESS * 2;
 
       // Check to see if there's a node we need to drag
       if (m_draggingNode == null) {
-        if (getInputInRect(sx, sy, node.width, node.height) && inputStarted && node.parent == null && node.draggable) {
+        if (getInputInRect(sx, sy, width, height) && inputStarted && node.parent == null && node.draggable) {
           m_draggingNode = node;
         }
       } else {
         // If the current node is not the one being dragged...
         if (node != m_draggingNode) {
           // ... check to see if the input is within the bounds of another unsplit node
-          if (getInputInRect(sx, sy, node.width, node.height) && node.nodes.length == 0) {
+          if (getInputInRect(sx, sy, width, height) && node.nodes.length == 0) {
             // If so, show and potentionally handle the drop zones
             drawNodeDropZones(node);
             if (handleNodeDropZones(node)) {
@@ -370,7 +436,7 @@ class Kimgui {
 
       // Process child nodes
       if (node.nodes.length > 0) {
-        handleDraggingNode(node.nodes);
+        handleDraggingNodes(node.nodes);
       }
     }
   }
@@ -426,6 +492,8 @@ class Kimgui {
       nodeA.width = baseNode.width / divisor;
       nodeB.width = baseNode.width - nodeA.width;
 
+      baseNode.splitRatio = nodeA.width / baseNode.width;
+
       nodeA.height = baseNode.height;
       nodeB.height = baseNode.height;
       
@@ -435,7 +503,9 @@ class Kimgui {
     // Split vertically
     } else {
       nodeA.height = baseNode.height / divisor;
-      nodeB.height = baseNode.height - nodeA.height;        
+      nodeB.height = baseNode.height - nodeA.height;
+      baseNode.splitRatio = nodeA.height / baseNode.height;
+
       nodeA.width  = baseNode.width;
       nodeB.width  = baseNode.width;
       
@@ -554,7 +624,7 @@ class Kimgui {
 
     drawNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.INNER);
     drawNodeDropZone(node, NodeSplitDirection.BOTTOM, NodeSplitLocation.OUTER);
-    
+
     drawNodeDropZone(node, NodeSplitDirection.NONE,   NodeSplitLocation.INNER);
   }
 

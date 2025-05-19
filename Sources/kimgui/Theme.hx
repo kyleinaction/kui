@@ -18,4 +18,7 @@ typedef Theme = {
 
   var WINDOW_TITLE_BAR_FONT_SIZE: Int;
   var WINDOW_TITLE_BAR_PADDING: Float;
+
+  var WINDOW_RESIZE_HANDLE_COLOR: Int;
+  var WINDOW_RESIZE_HANDLE_THICKNESS: Float;
 }
