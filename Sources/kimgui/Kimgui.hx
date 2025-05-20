@@ -1,5 +1,7 @@
 package kimgui;
 
+using kimgui.lib.ReverseArrayIterator;
+
 import kha.graphics2.Graphics;
 import kha.input.Mouse;
 import kimgui.themes.DarkTheme;
@@ -125,6 +127,7 @@ class Kimgui {
     m_screenNode = new Node(NodeSplitAxis.NONE);
     m_screenNode.draggable = false;
     m_screenNode.resizable = false;
+    m_screenNode.stayBehind = true;
     
     m_isHoveringNodeHandle = false;
 
@@ -206,11 +209,48 @@ class Kimgui {
         node.render(this, m_options.theme);
       }
 
+      endNodeFocusing();
       endNodeResizing();
       endNodeDragging();
     g.end();
 
     endInput();
+  }
+
+  /**
+   * Handles node focusing.
+   */
+  private function endNodeFocusing() {
+    doFocusNode(m_nodes);
+  }
+
+  /**
+   * Determines which node to focus.
+   */
+  private function doFocusNode(nodes: Array<Node>): Node {
+    for (node in nodes.reversedValues()) {
+      // Not a leaf node, so keep drilling into the children
+      if (node.nodes.length > 0) {
+        for (child in node.nodes) {
+          var focusedNode = doFocusNode(child.nodes);
+          if (focusedNode != null) {
+            return focusedNode;
+          }
+        }
+      }
+
+      // This is a leaf node
+      if (node.nodes.length == 0) {
+        if (getInputInRect(node.getScreenX(), node.getScreenY(), node.width, node.height)) {
+          if (inputStarted) {
+            focusNode(node);
+            return node;
+          }
+        }
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -381,10 +421,38 @@ class Kimgui {
   }
 
   /**
+   * Blurs all nodes.
+   */
+  private function blurNodes(nodes: Array<Node>) {
+    for (node in nodes) {
+      node.blur();
+
+      if (node.nodes.length > 0) {
+        blurNodes(node.nodes);
+      }
+    }
+  }
+
+  /**
+   * Focuses a node.
+   * This will blur all other nodes and set the given node and it's ancestors as focused.
+   */
+  private function focusNode(node: Node) {
+    blurNodes(m_nodes);
+    node.focus();
+
+    if (!node.stayBehind) {
+      var root = node.getRoot();
+      m_nodes.remove(node);
+      m_nodes.push(node);
+    }
+  }
+
+  /**
    * Finds a node, if any, to be resized.
    */
   private function handleResizingNodes(nodes: Array<Node>) {
-    for (node in nodes) {
+    for (node in nodes.reversedValues()) {
       if (node.renderResizeHandles(this, m_options.theme) && m_isHoveringNodeHandle == false) {
         m_isHoveringNodeHandle = true;
       }
@@ -405,7 +473,7 @@ class Kimgui {
    * This will check to see if the input is within the bounds of a node and if so, it will set that node as the current dragging node.
    */
   private function handleDraggingNodes(nodes: Array<Node>) {
-    for (node in nodes) {
+    for (node in nodes.reversedValues()) {
       if (node == m_draggingNode) {
         continue;
       }
@@ -512,8 +580,6 @@ class Kimgui {
       nodeB.x = 0;
       nodeB.y = nodeA.height;
     }
-
-    baseNode.resizeAncestors();
   }
 
   /**

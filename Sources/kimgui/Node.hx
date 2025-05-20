@@ -10,6 +10,16 @@ import haxe.Exception;
 @:access(kimgui.Window)
 class Node {
   /**
+   * Global ID counter.
+   */
+  public static var ID: Int = 0;
+
+  /**
+   * Node ID.
+   */
+  public var id: Int;
+
+  /**
    * The parent of this node, if one exists.
    */
   public var parent: Node;
@@ -71,10 +81,24 @@ class Node {
   public var resizable: Bool = true;
 
   /**
+   * Denotes where or not this node should be promoted when focused.
+   * The screen node for the Kha window always needs to see behind detached windows.
+   */
+  public var stayBehind: Bool = false;
+
+  /**
    * Whether this node is highlighted or not. This is used for dragging nodes.
    */
   public var highlighted: Bool = false;
 
+  /**
+   * True if this node or one of it's children is focused.
+   */
+  public var isFocused: Bool = false;
+
+  /**
+   * Debug border color.
+   */
   private var m_debugColor: Int;
 
   /**
@@ -82,15 +106,50 @@ class Node {
    */
   public function new(splitAxis: NodeSplitAxis, x:Float = 0, y:Float = 0, width:Float = 0, height:Float = 0) {
     this.splitAxis = splitAxis;
+    
     windows   = [];
     nodes     = [];
-
+    
+    this.id        = ID++;
     this.x         = x;
     this.y         = y;
     this.width     = width;
     this.height    = height;
 
     this.m_debugColor = Color.fromFloats(Math.random(), Math.random(), Math.random(), 0.25);
+  }
+
+  /**
+   * Blurs this node and all of it's children.
+   */
+  public function blur():Void {
+    isFocused = false;
+    if (nodes.length > 0) {
+      for (node in nodes) {
+        node.blur();
+      }
+    }
+  }
+
+  /**
+   * Focuses this node and it's ancestors.
+   */
+  public function focus():Void {
+    isFocused = true;
+    if (parent != null) {
+      parent.focus();
+    }
+  }
+
+  /**
+   * Returns the root node of this node. This is the topmost node in the tree.
+   */
+  public function getRoot():Node {
+    if (parent == null) {
+      return this;
+    } else {
+      return parent.getRoot();
+    }
   }
 
   /**
@@ -199,19 +258,6 @@ class Node {
       nodes[1].resize(width, secondNodeHeight, true);
 
       nodes[1].y = firstNodeHeight;
-    }
-  }
-
-  /**
-   * Resizes the ancestors of this node. This will resize all the child nodes of the root node.
-   */
-  public function resizeAncestors() {
-    if (parent != null) {
-      // Drill down to the root node
-      parent.resizeAncestors();
-    } else {
-      // Resize all the children of the root node
-      resizeNodes();
     }
   }
 

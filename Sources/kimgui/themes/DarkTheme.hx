@@ -7,7 +7,7 @@ class DarkTheme {
   public static var theme: Theme = {
     // Window properties
     WINDOW_BG_COLOR: 0xFF1E1E1E,
-    WINDOW_BORDER_COLOR: 0xFF4D4D4D,
+    WINDOW_BORDER_COLOR: 0xFF373737,
     WINDOW_BORDER_SIZE: 1.0,
 
     NODE_HIGHLIGHT_COLOR: 0xFF00508E,
