@@ -12,6 +12,10 @@ Kimgui (Kha Immediate Mode Graphical User Interface) is an immediate mode graphi
 ![Example of window splitting](support/images/splittingResizing.gif)
 ![Example of window merging](support/images/mergingResizing.gif)
 
+## Bugs
+- [ ] All children of a root node should be rendered before any other root node. Currently, if you drag two nodes into a split node, each child of the split will be rendered in the order they were focused.
+- [ ] It should be impossible to merge/split a parent node into one of it's own children.
+
 ## TODO
 
 - [x] Ability to create Windows.
