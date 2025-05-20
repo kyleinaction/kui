@@ -343,34 +343,62 @@ class Node {
       return null;
     }
 
+    // Hide handles that would overlap with the parent node handles
+    var canHaveTopHandle = true;
+    var canHaveBottomHandle = true;
+    var canHaveLeftHandle = true;
+    var canHaveRightHandle = true;
+    if (parent != null) {
+      var isFirstChild = parent.nodes[0] == this;
+      if (parent.splitAxis == NodeSplitAxis.HORIZONTAL) {
+        canHaveTopHandle = false;
+        canHaveBottomHandle = false;
+
+        if (isFirstChild) {
+          canHaveLeftHandle = false;
+        } else {
+          canHaveRightHandle = false;
+        }
+      } else if (parent.splitAxis == NodeSplitAxis.VERTICAL) {
+        canHaveLeftHandle = false;
+        canHaveRightHandle = false;
+
+        if (isFirstChild) {
+          canHaveTopHandle = false;
+        } else {
+          canHaveBottomHandle = false;
+        }
+      }
+    }
+
     // Check top
     var topRect = getResizeHandleRect(NodeSplitDirection.TOP, theme);
     var bottomRect = getResizeHandleRect(NodeSplitDirection.BOTTOM, theme);
     var leftRect = getResizeHandleRect(NodeSplitDirection.LEFT, theme);
     var rightRect = getResizeHandleRect(NodeSplitDirection.RIGHT, theme);
-
-    if (ui.getInputInRect(topRect[0], topRect[1], topRect[2], topRect[3]) && ui.inputStarted) {
+    
+    if (ui.getInputInRect(topRect[0], topRect[1], topRect[2], topRect[3]) && ui.inputStarted && canHaveTopHandle) {
       return {
         node: this,
         direction: NodeSplitDirection.TOP
       };
       
     // Check Bottom
-    } else if (ui.getInputInRect(bottomRect[0], bottomRect[1], bottomRect[2], bottomRect[3]) && ui.inputStarted) {
+    } else if (ui.getInputInRect(bottomRect[0], bottomRect[1], bottomRect[2], bottomRect[3]) && ui.inputStarted && canHaveBottomHandle) {
       return {
         node: this,
         direction: NodeSplitDirection.BOTTOM
       };
       
     // Check Left
-    } else if (ui.getInputInRect(leftRect[0], leftRect[1], leftRect[2], leftRect[3]) && ui.inputStarted) {
+    } else if (ui.getInputInRect(leftRect[0], leftRect[1], leftRect[2], leftRect[3]) && ui.inputStarted && canHaveLeftHandle) {
       return {
         node: this,
         direction: NodeSplitDirection.LEFT
       };
       
     // Check Right 
-    } else if (ui.getInputInRect(rightRect[0], rightRect[1], rightRect[2], rightRect[3]) && ui.inputStarted) {
+    } else if (ui.getInputInRect(rightRect[0], rightRect[1], rightRect[2], rightRect[3]) && ui.inputStarted && canHaveRightHandle) {
       return {
         node: this,
         direction: NodeSplitDirection.RIGHT
