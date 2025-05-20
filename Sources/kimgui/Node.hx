@@ -262,6 +262,21 @@ class Node {
   }
 
   /**
+   * Resizes the ancestors of this node. This will resize all the child nodes of the root node.
+   */
+  public function resizeAncestors() {
+    if (parent != null) {
+      // Drill down to the root node
+      parent.resizeAncestors();
+    } else {
+      // Resize all the children of the root node
+      resizeNodes();
+    }
+  }
+
+
+
+  /**
    * Renders the node and its children.
    */
   public function render(ui:Kimgui, theme:Theme) {
@@ -376,7 +391,7 @@ class Node {
     var bottomRect = getResizeHandleRect(NodeSplitDirection.BOTTOM, theme);
     var leftRect = getResizeHandleRect(NodeSplitDirection.LEFT, theme);
     var rightRect = getResizeHandleRect(NodeSplitDirection.RIGHT, theme);
-    
+
     if (ui.getInputInRect(topRect[0], topRect[1], topRect[2], topRect[3]) && ui.inputStarted && canHaveTopHandle) {
       return {
         node: this,

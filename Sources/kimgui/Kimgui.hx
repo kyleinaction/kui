@@ -580,6 +580,8 @@ class Kimgui {
       nodeB.x = 0;
       nodeB.y = nodeA.height;
     }
+
+    baseNode.resizeAncestors();
   }
 
   /**
