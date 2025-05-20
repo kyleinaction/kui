@@ -438,9 +438,9 @@ class Kimgui {
   private function focusNode(node: Node) {
     blurNodes(m_nodes);
     node.focus();
+    var root = node.getRoot();
 
-    if (!node.stayBehind) {
-      var root = node.getRoot();
+    if (!root.stayBehind) {
       m_nodes.remove(root);
       m_nodes.push(root);
     }

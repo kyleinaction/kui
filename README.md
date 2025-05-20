@@ -9,8 +9,12 @@ Kimgui (Kha Immediate Mode Graphical User Interface) is an immediate mode graphi
 - Easy to theme.
 - Easy to extend and add new elements.
 
-![Example of window splitting](support/images/splittingResizing.gif)
-![Example of window merging](support/images/mergingResizing.gif)
+## Examples
+### Node Splitting
+![Example of window splitting](support/images/splitResizeZOrdering.gif)
+
+### Node Merging
+![Example of window merging](support/images/mergeResizeZOrdering.gif)
 
 ## TODO
 
