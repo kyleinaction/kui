@@ -274,8 +274,6 @@ class Node {
     }
   }
 
-
-
   /**
    * Renders the node and its children.
    */

@@ -231,18 +231,16 @@ class Kimgui {
     for (node in nodes.reversedValues()) {
       // Not a leaf node, so keep drilling into the children
       if (node.nodes.length > 0) {
-        for (child in node.nodes) {
-          var focusedNode = doFocusNode(child.nodes);
-          if (focusedNode != null) {
-            return focusedNode;
-          }
+        var focusedNode = doFocusNode(node.nodes);
+        if (focusedNode != null) {
+          return focusedNode;
         }
       }
 
       // This is a leaf node
       if (node.nodes.length == 0) {
         if (getInputInRect(node.getScreenX(), node.getScreenY(), node.width, node.height)) {
-          if (inputStarted) {
+          if (inputReleased) {
             focusNode(node);
             return node;
           }
@@ -582,6 +580,7 @@ class Kimgui {
     }
 
     baseNode.resizeAncestors();
+    focusNode(nodeB);
   }
 
   /**
