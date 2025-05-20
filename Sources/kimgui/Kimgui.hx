@@ -209,9 +209,9 @@ class Kimgui {
         node.render(this, m_options.theme);
       }
 
-      endNodeFocusing();
       endNodeResizing();
       endNodeDragging();
+      endNodeFocusing();
     g.end();
 
     endInput();
@@ -240,7 +240,7 @@ class Kimgui {
       // This is a leaf node
       if (node.nodes.length == 0) {
         if (getInputInRect(node.getScreenX(), node.getScreenY(), node.width, node.height)) {
-          if (inputReleased) {
+          if (inputStarted) {
             focusNode(node);
             return node;
           }
@@ -441,8 +441,8 @@ class Kimgui {
 
     if (!node.stayBehind) {
       var root = node.getRoot();
-      m_nodes.remove(node);
-      m_nodes.push(node);
+      m_nodes.remove(root);
+      m_nodes.push(root);
     }
   }
 
@@ -580,7 +580,6 @@ class Kimgui {
     }
 
     baseNode.resizeAncestors();
-    focusNode(nodeB);
   }
 
   /**
