@@ -154,9 +154,9 @@ class Kimgui {
     }
 
     var textVS = kha.graphics4.Graphics2.createTextVertexStructure();
-		m_textPipeline = kha.graphics4.Graphics2.createTextPipeline(textVS);
-		m_textPipeline.alphaBlendSource = BlendOne;
-		m_textPipeline.compile();
+    m_textPipeline = kha.graphics4.Graphics2.createTextPipeline(textVS);
+    m_textPipeline.alphaBlendSource = BlendOne;
+    m_textPipeline.compile();
 
     registerInput();
   }
@@ -438,7 +438,7 @@ class Kimgui {
   public function drawString(text: String, x: Float, y: Float, color: Int, fontSize: Int = 12) {
     g.pipeline = m_textPipeline;
     g.font = m_options.font;
-		g.fontSize = fontSize;
+    g.fontSize = fontSize;
     g.color = color;
     g.drawString(text, x, y);
     g.pipeline = null;
@@ -448,20 +448,20 @@ class Kimgui {
    * Returns true if the current input is within the bounds.
    */
   public function getInputInRect(x: Float, y: Float, w: Float, h: Float, scale = 1.0): Bool {
-		return inputX >= x * scale && inputX < (x + w) * scale &&
-			     inputY >= y * scale && inputY < (y + h) * scale;
-	}
+    return inputX >= x * scale && inputX < (x + w) * scale &&
+           inputY >= y * scale && inputY < (y + h) * scale;
+  }
 
   /**
    * Called when a mouse button is pressed. 
    */
   private function onMouseDown(button: Int, x: Int, y: Int) { // Input events
-		button == 0 ? inputStarted = true : inputStartedR = true;
-		button == 0 ? inputDown = true : inputDownR = true;
+    button == 0 ? inputStarted = true : inputStartedR = true;
+    button == 0 ? inputDown = true : inputDownR = true;
 
-		inputStartedX = x;
-		inputStartedY = y;
-	}
+    inputStartedX = x;
+    inputStartedY = y;
+  }
 
   /**
    * Called when a mouse button is released.
@@ -477,45 +477,45 @@ class Kimgui {
   public function onMouseMove(x: Int, y: Int, movementX: Int, movementY: Int) {
     inputDX = x - inputX;
     inputDY = y - inputY;
-		inputX = x;
+    inputX = x;
     inputY = y;
-	}
+  }
 
   /**
    * Called when the mouse wheel is scrolled.
    */
   public function onMouseWheel(delta: Int) {
 
-	}
+  }
 
   /**
    * Registers input events.
    */
   private function registerInput() {
-		Mouse.get().notifyWindowed(0, onMouseDown, onMouseUp, onMouseMove, onMouseWheel);
-		// Reset mouse delta on foreground
-		kha.System.notifyOnApplicationState(function() { inputDX = inputDY = 0; }, null, null, null, null);
-	}
+    Mouse.get().notifyWindowed(0, onMouseDown, onMouseUp, onMouseMove, onMouseWheel);
+    // Reset mouse delta on foreground
+    kha.System.notifyOnApplicationState(function() { inputDX = inputDY = 0; }, null, null, null, null);
+  }
 
   /**
    * Unregisters input events.
    */
-	private function unregisterInput() {
-		Mouse.get().removeWindowed(0, onMouseDown, onMouseUp, onMouseMove, onMouseWheel);
-		inputX = inputY = 0;
+  private function unregisterInput() {
+    Mouse.get().removeWindowed(0, onMouseDown, onMouseUp, onMouseMove, onMouseWheel);
+    inputX = inputY = 0;
     inputDX = inputDY = 0;
-	}
+  }
 
   /**
    * Prepares inputs for the next frame.
    */ 
   private function endInput() {
     inputStarted = false;
-		inputStartedR = false;
-		inputReleased = false;
-		inputReleasedR = false;
-		inputDX = 0;
-		inputDY = 0;
+    inputStartedR = false;
+    inputReleased = false;
+    inputReleasedR = false;
+    inputDX = 0;
+    inputDY = 0;
 
     m_isHoveringNodeHandle = false;
   }
