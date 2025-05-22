@@ -61,6 +61,8 @@ class Application {
       ui.window(Id.handle(), "Second Window", 350, 30, 200, 300);
       ui.window(Id.handle(), "Third Window", 670, 30, 300, 500);
       ui.window(Id.handle(), "Fourth Window", 30, 350, 400, 400);
+      ui.window(Id.handle(), "Fifth Window", 450, 350, 300, 300);
+      ui.window(Id.handle(), "Sixth Window", 800, 350, 300, 300);
     ui.end();
   }
 }

@@ -106,6 +106,16 @@ class Kimgui {
   public var inputDownR: Bool;
 
   /**
+   * The X position of the cursor. This is where the next UI element will be drawn.
+  */
+  public var cursorX: Float;
+
+  /**
+   * The Y position of the cursor. This is where the next UI element will be drawn.
+   */
+  public var cursorY: Float;
+
+  /**
    * UI options.
    */
   private var m_options: Options;
@@ -172,6 +182,14 @@ class Kimgui {
   }
 
   /**
+   * Sets the cursor position.
+   */
+  public function setCursor(x: Float, y: Float) {
+    cursorX = x;
+    cursorY = y;
+  }
+
+  /**
    * Begins the drawing context.
    */
   public function begin(g: Graphics) {
@@ -179,20 +197,11 @@ class Kimgui {
   }
 
   /**
-   * Merges two nodes together.
-   * This will remove the first node and add all of its windows to the second node.
-   *
-   * @TODO: this needs to be updated to be recursive. All windows belongs to all children of nodeA 
+   * Draws a text element at the current cursor position and moves the cursor.
    */
-  private function mergeNodeWindows(nodeA: Node, nodeB: Node) {
-    final windows = nodeA.getDescendantWindowsAndUnset();
-
-    for (window in windows) {
-      nodeB.addWindow(window);
-    }
-
-    nodeA.windows = [];
-    m_nodes.remove(nodeA);
+  public function text(text: String) {
+    drawString(text, 0, cursorY, m_options.theme.TEXT_COLOR, m_options.theme.TEXT_SIZE);
+    cursorY = m_options.font.height(m_options.theme.TEXT_SIZE) + m_options.theme.ELEMENT_SPACING;
   }
 
   /**
@@ -215,6 +224,24 @@ class Kimgui {
     g.end();
 
     endInput();
+  }
+
+
+  /**
+   * Merges two nodes together.
+   * This will remove the first node and add all of its windows to the second node.
+   *
+   * @TODO: this needs to be updated to be recursive. All windows belongs to all children of nodeA 
+   */
+  private function mergeNodeWindows(nodeA: Node, nodeB: Node) {
+    final windows = nodeA.getDescendantWindowsAndUnset();
+
+    for (window in windows) {
+      nodeB.addWindow(window);
+    }
+
+    nodeA.windows = [];
+    m_nodes.remove(nodeA);
   }
 
   /**

@@ -27,7 +27,7 @@ Kimgui (Kha Immediate Mode Graphical User Interface) is an immediate mode graphi
 - [ ] Detach nodes from their parent.
 - [ ] Preventing event propagation.
 - [ ] Window scrolling.
-- [ ] Text/Labels.
+- [x] Text/Labels.
 - [ ] Buttons.
 - [ ] Radio buttons.
 - [ ] Check-boxes.
