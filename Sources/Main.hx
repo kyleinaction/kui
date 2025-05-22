@@ -57,12 +57,16 @@ class Application {
 
     // Render UI after other rendering finishes
     ui.begin(g2);
-      ui.window(Id.handle(), "First Window", 30, 30, 300, 300);
-      ui.window(Id.handle(), "Second Window", 350, 30, 200, 300);
-      ui.window(Id.handle(), "Third Window", 670, 30, 300, 500);
-      ui.window(Id.handle(), "Fourth Window", 30, 350, 400, 400);
-      ui.window(Id.handle(), "Fifth Window", 450, 350, 300, 300);
-      ui.window(Id.handle(), "Sixth Window", 800, 350, 300, 300);
+      ui.window(Id.handle(), "First Window", 30, 30, 300, 300, function () {
+        ui.text("Hello there!");
+        ui.text("This is window number 1!");
+      });
+
+      ui.window(Id.handle(), "Second Window", 350, 30, 200, 300, function () {});
+      ui.window(Id.handle(), "Third Window", 670, 30, 300, 500, function () {});
+      ui.window(Id.handle(), "Fourth Window", 30, 350, 400, 400, function () {});
+      ui.window(Id.handle(), "Fifth Window", 450, 350, 300, 300, function () {});
+      ui.window(Id.handle(), "Sixth Window", 800, 350, 300, 300, function () {});
     ui.end();
   }
 }

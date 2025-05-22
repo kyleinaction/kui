@@ -1,10 +1,13 @@
 package kimgui;
-
 using kimgui.lib.ReverseArrayIterator;
 
 import kha.graphics2.Graphics;
 import kha.input.Mouse;
+
 import kimgui.themes.DarkTheme;
+
+// Elements
+import kimgui.elements.Text;
 
 /**
  * Main interface for Kimgui.
@@ -200,7 +203,8 @@ class Kimgui {
    * Draws a text element at the current cursor position and moves the cursor.
    */
   public function text(text: String) {
-    drawString(text, 0, cursorY, m_options.theme.TEXT_COLOR, m_options.theme.TEXT_SIZE);
+    var textElement = new Text(0, cursorY, text, m_options.theme.TEXT_COLOR, m_options.theme.TEXT_SIZE);
+    m_currentWindow.drawList.push(textElement);
     cursorY = m_options.font.height(m_options.theme.TEXT_SIZE) + m_options.theme.ELEMENT_SPACING;
   }
 
@@ -208,12 +212,12 @@ class Kimgui {
    * Renders the final node/window contents.
    */
   public function end() {
-    if (m_currentWindow != null) {
-      endWindow();
-    }
-
     g.begin(false);
       // Render node contents
+      // for (node in m_nodes.reversedValues()) {
+      //   handleNodeInputs(node);
+      // }
+
       for (node in m_nodes) {
         node.render(this, m_options.theme);
       }
@@ -224,6 +228,20 @@ class Kimgui {
     g.end();
 
     endInput();
+  }
+
+  public function handleNodeInputs(node:Node) {
+    var activeWindow = node.getActiveWindow();
+    if (activeWindow != null) {
+      m_currentWindow = activeWindow;
+      activeWindow.handleInput(this, m_options.theme, node.getScreenX(), node.getScreenY(), node.width, node.height);
+      m_currentWindow = null;
+      return;
+    }
+
+    for (childNode in node.nodes) {
+      handleNodeInputs(childNode);
+    }
   }
 
 
@@ -319,10 +337,8 @@ class Kimgui {
   /**
    * Creates a new window.
    */
-  public function window(handle:Handle, title:String = "", x:Float = 0.0, y:Float = 0.0, width:Float = 200.0, height:Float = 200.0):Bool {
-    if (m_currentWindow != null) {
-      endWindow();
-    }
+  public function window(handle:Handle, title:String = "", x:Float = 0.0, y:Float = 0.0, width:Float = 200.0, height:Float = 200.0, fn: Void -> Void):Bool {
+    var windowInstance = null;
 
     if (handle.window == null) {
       // Create new node
@@ -330,23 +346,18 @@ class Kimgui {
       m_nodes.push(node);
 
       // Create new window and add it to the node
-      m_currentWindow = new Window();
-      node.addWindow(m_currentWindow);
-      handle.window = m_currentWindow;
+      windowInstance = new Window();
+      node.addWindow(windowInstance);
+      handle.window = windowInstance;
     } else {
-      m_currentWindow = handle.window;
+      windowInstance = handle.window;
     }
 
-    m_currentWindow.title = title;
+    windowInstance.title = title;
+    windowInstance.drawList = [];
+    windowInstance.fn = fn;
 
     return true;
-  }
-
-  /**
-   * Ends the current window.
-   */
-  public function endWindow() {
-    m_currentWindow = null;
   }
 
   /**

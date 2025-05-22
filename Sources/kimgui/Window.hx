@@ -12,6 +12,8 @@ class Window {
    */
   public var node: Node;
 
+  public var drawList: Array<Drawable>;
+
   /**
    * Window title.
    */
@@ -35,12 +37,27 @@ class Window {
   public var previouslyDrawnWidth: Float;
 
   /**
+   * The inline function to call when the window is processed.
+   */ 
+  public var fn: Void->Void;
+
+  /**
    * Constructor.
    */
   public function new() {
     title = "";
     previouslyDrawnHeight = 0;
     previouslyDrawnWidth  = 0;
+  }
+
+  public function handleInput(ui:Kimgui, theme: Theme, x:Float, y:Float, width:Float, height:Float):Void {
+    // Handle input for the window
+    ui.setCursor(0, 0);
+
+    // Call the function to process the window
+    if (fn != null) {
+      fn();
+    }
   }
 
   /**
@@ -52,12 +69,12 @@ class Window {
     // Set the texture as the drawing target for Kimgui
     var globalG = ui.g;
 
-    // End the global graphics context
+    // // End the global graphics context
     globalG.end();
 
-    // Start the window graphics context
+    // // Start the window graphics context
     ui.g = texture.g2;
-    ui.g.begin(true, theme.WINDOW_BG_COLOR);
+    ui.g.begin(false, theme.WINDOW_BG_COLOR);
 
       // Reset the cursor to the top left of the window
       ui.setCursor(0, 0);
@@ -65,23 +82,27 @@ class Window {
       // Draw the window background contents
       ui.drawRect(x, y, width, height, theme.WINDOW_BG_COLOR);
 
-      ui.text("Hello there!");
-      ui.text("This is window: " + title);
+    //   ui.drawString("WTF!!!!", 0, 0, theme.TEXT_COLOR, theme.TEXT_SIZE);
 
-      previouslyDrawnHeight = Math.max(0, height);
-      previouslyDrawnWidth  = Math.max(0, width);
+    //   // Iterate over draw list and render each element
+    //   // for (element in drawList) {
+    //   //   element.render(ui);
+    //   // }
+    
+    //   previouslyDrawnHeight = Math.max(0, height);
+    //   previouslyDrawnWidth  = Math.max(0, width);
 
-    // End the window graphics context
+    // // End the window graphics context
     ui.g.end();
 
-    // Return the graphics object to the original
+    // // Return the graphics object to the original
     ui.g = globalG;
 
-    // Restart the original graphics context
+    // // Restart the original graphics context
     ui.g.begin(false);
 
     // Draw the window texture to the screen as specified by the parent
-    ui.g.drawScaledSubImage(texture, 0, 0, width, height, x, y, width, height);
+    // ui.g.drawScaledSubImage(texture, 0, 0, width, height, x, y, width, height);
   }
 
   /**
@@ -91,11 +112,5 @@ class Window {
     if (texture == null || texture.width != width || texture.height != height) {
       texture = kha.Image.createRenderTarget(Std.int(width), Std.int(height), kha.graphics4.TextureFormat.RGBA32, kha.graphics4.DepthStencilFormat.NoDepthAndStencil, 1);
     }
-  }
-}
-
-
-class Drawable {
-  public function new() {
   }
 }

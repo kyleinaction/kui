@@ -152,6 +152,10 @@ class Node {
     }
   }
 
+  public function getActiveWindow():Window {
+    return m_activeWindow;
+  }
+
   /**
    * Adds a child node to this node.
    */
