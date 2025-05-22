@@ -37,7 +37,8 @@ class Window {
   public var previouslyDrawnWidth: Float;
 
   /**
-   * The inline function to call when the window is processed.
+   * The function to process the main body of the window. This will generate
+   * the draw list to be rendered later and will handle all input for the window.
    */ 
   public var fn: Void->Void;
 
@@ -51,9 +52,8 @@ class Window {
   }
 
   public function handleInput(ui:Kimgui, theme: Theme, x:Float, y:Float, width:Float, height:Float):Void {
-    // Handle input for the window
     ui.setCursor(0, 0);
-
+    drawList = [];
     // Call the function to process the window
     if (fn != null) {
       fn();
@@ -77,13 +77,10 @@ class Window {
     // Clear the texture
     ui.g.begin(true, theme.WINDOW_BG_COLOR);
 
-      // Reset the cursor position
-      ui.setCursor(0, 0);
-
-      // Draw elements
-      for (element in drawList) {
-        element.render(ui);
-      }
+    // Draw elements
+    for (element in drawList) {
+      element.render(ui);
+    }
 
     // Finish texture drawing
     ui.g.end();
@@ -93,7 +90,7 @@ class Window {
 
     // Draw the window texture to the screen
     ui.g.begin(false);
-    ui.g.drawScaledSubImage(texture, 0, 0, width, height, x, y, width, height);
+    ui.g.drawScaledSubImage(texture, 0, 0, Std.int(width), Std.int(height), x, y, Std.int(width), Std.int(height));
 
     previouslyDrawnHeight = Math.max(0, height);
     previouslyDrawnWidth  = Math.max(0, width);
