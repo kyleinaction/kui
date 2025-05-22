@@ -90,7 +90,7 @@ class Window {
 
     // Draw the window texture to the screen
     ui.g.begin(false);
-    ui.g.drawScaledSubImage(texture, 0, 0, Std.int(width), Std.int(height), x, y, Std.int(width), Std.int(height));
+    ui.g.drawScaledSubImage(texture, 0, 0, Std.int(width), Std.int(height), Std.int(x), Std.int(y), Std.int(width), Std.int(height));
 
     previouslyDrawnHeight = Math.max(0, height);
     previouslyDrawnWidth  = Math.max(0, width);

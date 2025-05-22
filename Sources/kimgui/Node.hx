@@ -227,6 +227,11 @@ class Node {
    * Adds a child window to this node.
    */
   public function addWindow(window: Window) {
+    if (window.node != null) {
+      window.node.windows.remove(window);
+      window.node.m_activeWindow = null;  
+    }
+
     window.node = this;
     windows.push(window);
 
