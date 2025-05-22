@@ -16,6 +16,11 @@ class Kimgui {
   public var g:Graphics;
 
   /**
+   * The global graphics context.
+   */
+  public var globalG:Graphics;
+
+  /**
    * All UI nodes.
    */
   private var m_nodes: Array<Node>;
@@ -165,10 +170,10 @@ class Kimgui {
   }
 
   /**
-   * Set the size of the window.
-   * This will resize all nodes to the given width and height.
+   * Set the size of the screen.
+   * This will resize the screen node to the given width and height.
    */
-  public function setWindowSize(width: Float, height: Float) {
+  public function setScreenSize(width: Float, height: Float) {
     if (m_screenNode.width != width || m_screenNode.height != height) {
       m_screenNode.resize(width, height);
     }
@@ -190,10 +195,10 @@ class Kimgui {
   }
 
   /**
-   * Begins the drawing context.
+   * Begins the UI
    */
   public function begin(g: Graphics) {
-    this.g = g;
+    this.globalG = g;
   }
 
   /**
@@ -201,7 +206,74 @@ class Kimgui {
    */
   public function text(text: String) {
     drawString(text, 0, cursorY, m_options.theme.TEXT_COLOR, m_options.theme.TEXT_SIZE);
-    cursorY = m_options.font.height(m_options.theme.TEXT_SIZE) + m_options.theme.ELEMENT_SPACING;
+    cursorY += m_options.font.height(m_options.theme.TEXT_SIZE) + m_options.theme.ELEMENT_SPACING;
+  }
+
+  /**
+   * Draws a button at the current cursor position and moves the cursor.
+   * Returns true if the button was clicked.
+   */
+  public function button(text: String) {
+    var clicked = false;
+
+    var color = m_options.theme.BUTTON_COLOR;
+    
+    var bodyRect = m_currentWindow.node.getBodyRect(m_options.theme);
+    var sx = bodyRect[0];
+    var sy = bodyRect[1];
+
+    var width = m_currentWindow.previouslyDrawnWidth;
+    var height = m_options.theme.BUTTON_HEIGHT;
+
+    if (isHovering(sx + cursorX, sy + cursorY, width, height)) {
+      color = m_options.theme.BUTTON_HOVER_COLOR;
+      if (inputDown) {
+        color = m_options.theme.BUTTON_ACTIVE_COLOR;
+      }
+      if (inputReleased) {
+        clicked = true;
+      }
+    }
+
+    var textWidth = m_options.font.width(m_options.theme.BUTTON_TEXT_SIZE, text);
+    var textHeight = m_options.font.height(m_options.theme.BUTTON_TEXT_SIZE);
+
+    var textX = cursorX + (width / 2) - (textWidth / 2);
+    var textY = cursorY + (height / 2) - (textHeight / 2) - 1;
+
+    drawRect(cursorX, cursorY, width, height, color);
+    drawString(text, textX, textY, m_options.theme.BUTTON_TEXT_COLOR, m_options.theme.BUTTON_TEXT_SIZE);
+
+    cursorY += height + m_options.theme.ELEMENT_SPACING;
+    return clicked;
+  }
+
+  /**
+   * Returns TRUE if the input is within the bounds of the given rectangle AND
+   * the x/y are not obscured by any other node.
+   */
+  public function isHovering(x, y, width, height): Bool {
+    if (!getInputInRect(x, y, width, height)) {
+      return false;
+    }
+
+    var rootNode = m_currentWindow.node.getRoot();
+    var foundRoot = false;
+    for (node in m_nodes) {
+      if (node == rootNode) {
+        foundRoot = true;
+        continue;
+      }
+
+      if (foundRoot) {
+        var nodeRect = node.getBodyRect(m_options.theme);
+        if (getInputInRect(nodeRect[0], nodeRect[1], nodeRect[2], nodeRect[3])) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -212,6 +284,7 @@ class Kimgui {
       endWindow();
     }
 
+    g = globalG;
     g.begin(false);
       // Render node contents
       for (node in m_nodes) {
@@ -338,6 +411,7 @@ class Kimgui {
     }
 
     m_currentWindow.title = title;
+    m_currentWindow.begin(this, m_options.theme);
 
     return true;
   }
@@ -346,6 +420,7 @@ class Kimgui {
    * Ends the current window.
    */
   public function endWindow() {
+    m_currentWindow.end(this, m_options.theme);
     m_currentWindow = null;
   }
 

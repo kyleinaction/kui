@@ -10,6 +10,49 @@ Kimgui (Kha Immediate Mode Graphical User Interface) is an immediate mode graphi
 - Easy to extend and add new elements.
 
 ## Examples
+
+```haxe
+class Application {
+  public var ui:Kimgui;
+
+  public function new() {
+    ui = new Kimgui({ font: Assets.fonts.OpenSansMedium });
+  }
+
+  public function render(framebuffers: Array<Framebuffer>):Void {
+    final fb = framebuffers[0];
+    final g2 = fb.g2;
+
+    ui.setScreenSize(fb.width, fb.height);
+
+    g2.begin(true, Color.fromBytes(0, 0, 0));
+    // Do normal rendering here
+    g2.end();
+
+    // Render UI after other rendering finishes
+    ui.begin(g2);
+      // Create a window
+      if (ui.window(Id.handle(), "First Window", 30, 30, 300, 300)) {
+        ui.text("Hello World!");
+        ui.text("This is window 1");
+
+        if (ui.button("Click Me")) {
+          trace("First Window Button Clicked");
+        }
+      }
+
+      // Create a second window
+      if (ui.window(Id.handle(), "Second Window", 350, 30, 200, 300)) {
+        ui.text("Another window!");
+        if (ui.button("Click Me Too")) {
+          trace("Second Window Button Clicked");
+        }
+      }
+    ui.end();
+  }
+}
+```
+
 ### Node Splitting
 ![Example of window splitting](support/images/splitResizeZOrdering.gif)
 
@@ -25,10 +68,10 @@ Kimgui (Kha Immediate Mode Graphical User Interface) is an immediate mode graphi
 - [x] Resizing Nodes/Windows.
 - [x] Sorting nodes/windows.
 - [ ] Detach nodes from their parent.
-- [ ] Preventing event propagation.
+- [x] Preventing event propagation.
 - [ ] Window scrolling.
 - [x] Text/Labels.
-- [ ] Buttons.
+- [x] Buttons.
 - [ ] Radio buttons.
 - [ ] Check-boxes.
 - [ ] Combo-boxes.

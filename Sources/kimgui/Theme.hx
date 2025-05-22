@@ -26,4 +26,12 @@ typedef Theme = {
   var WINDOW_RESIZE_HANDLE_THICKNESS: Float;
   
   var ELEMENT_SPACING: Float;
+
+  var BUTTON_COLOR: Int;
+  var BUTTON_HOVER_COLOR: Int;
+  var BUTTON_ACTIVE_COLOR: Int;
+
+  var BUTTON_HEIGHT: Float;
+  var BUTTON_TEXT_COLOR: Int;
+  var BUTTON_TEXT_SIZE: Int;
 }

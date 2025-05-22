@@ -223,6 +223,13 @@ class Node {
    * Adds a child window to this node.
    */
   public function addWindow(window: Window) {
+    if (window.node != null) {
+      var oldParent = window.node;
+      if (oldParent.m_activeWindow == window) {
+        oldParent.m_activeWindow = null;
+      }
+    }
+
     window.node = this;
     windows.push(window);
 
@@ -274,6 +281,18 @@ class Node {
     }
   }
 
+  public function getBodyRect(theme:Theme): Array<Float> {
+    var sx = getScreenX();
+    var sy = getScreenY();
+
+    var bodyX = sx + theme.WINDOW_BORDER_SIZE;
+    var bodyY = sy + theme.WINDOW_BORDER_SIZE + theme.WINDOW_TITLEBAR_HEIGHT;
+    var bodyWidth = width - (theme.WINDOW_BORDER_SIZE * 2);
+    var bodyHeight = height - (theme.WINDOW_BORDER_SIZE * 2) - theme.WINDOW_TITLEBAR_HEIGHT;
+
+    return [bodyX, bodyY, bodyWidth, bodyHeight];
+  }
+
   /**
    * Renders the node and its children.
    */
@@ -297,10 +316,11 @@ class Node {
       return;
     }
 
-    var bodyX = sx + theme.WINDOW_BORDER_SIZE;
-    var bodyY = sy + theme.WINDOW_BORDER_SIZE + theme.WINDOW_TITLEBAR_HEIGHT;
-    var bodyWidth = width - (theme.WINDOW_BORDER_SIZE * 2);
-    var bodyHeight = height - (theme.WINDOW_BORDER_SIZE * 2) - theme.WINDOW_TITLEBAR_HEIGHT;
+    var bodyRect = getBodyRect(theme);
+    var bodyX = bodyRect[0];
+    var bodyY = bodyRect[1];
+    var bodyWidth = bodyRect[2];
+    var bodyHeight = bodyRect[3];
 
     var titleX = sx + theme.WINDOW_BORDER_SIZE;
     var titleY = sy + theme.WINDOW_BORDER_SIZE;
@@ -313,7 +333,7 @@ class Node {
     // Draw title bar
     ui.drawRect(titleX, titleY, titleWidth, titleHeight, theme.WINDOW_BORDER_COLOR);
 
-    // Render the child windows
+    // Render the child window tabs
     var titleBarX = titleX;
     for (window in windows) {
       // Draw window tab
@@ -335,16 +355,17 @@ class Node {
         m_activeWindow = window;
       }
 
-      // Draw the active window
-      if (m_activeWindow == window) {
-        window.render(ui, theme, bodyX, bodyY, bodyWidth, bodyHeight);
-      }
-
-      if (highlighted) {
-        ui.drawRect(sx, sy, width, height, theme.NODE_HIGHLIGHT_COLOR);
-      }
-
       titleBarX = titleBarX + tabWidth + 1;
+    }
+
+    // Copy the active window texture to the screen
+    if (m_activeWindow != null) {
+      ui.g.drawScaledSubImage(m_activeWindow.texture, 0, 0, 
+        Std.int(bodyWidth), Std.int(bodyHeight), Std.int(bodyX), Std.int(bodyY), Std.int(bodyWidth), Std.int(bodyHeight));
+    }
+
+    if (highlighted) {
+      ui.drawRect(sx, sy, width, height, theme.NODE_HIGHLIGHT_COLOR);
     }
   }
 

@@ -46,48 +46,37 @@ class Window {
   /**
    * Renders the window & it's contents.
    */
-  public function render(ui:Kimgui, theme: Theme, x:Float, y:Float, width:Float, height:Float):Void {
+  public function begin(ui:Kimgui, theme: Theme):Void {
     initTexture(previouslyDrawnWidth, previouslyDrawnHeight);
-
-    // Set the texture as the drawing target for Kimgui
-    var globalG = ui.g;
-
-    // End the global graphics context
-    globalG.end();
-
-    // Start the window graphics context
+    ui.setCursor(0, 0);
     ui.g = texture.g2;
     ui.g.begin(true, theme.WINDOW_BG_COLOR);
 
-      // Reset the cursor to the top left of the window
-      ui.setCursor(0, 0);
+    // Draw the window background contents
+    ui.drawRect(0, 0, previouslyDrawnWidth, previouslyDrawnHeight, theme.WINDOW_BG_COLOR);
+  }
 
-      // Draw the window background contents
-      ui.drawRect(x, y, width, height, theme.WINDOW_BG_COLOR);
-
-      ui.text("Hello there!");
-      ui.text("This is window: " + title);
-
-      previouslyDrawnHeight = Math.max(0, height);
-      previouslyDrawnWidth  = Math.max(0, width);
-
-    // End the window graphics context
+  /**
+   * Ends the window rendering.
+   */
+  public function end(ui:Kimgui, theme:Theme):Void {
     ui.g.end();
 
-    // Return the graphics object to the original
-    ui.g = globalG;
+    var bodyDimensions = node.getBodyRect(theme);
+    var bodyWidth = bodyDimensions[2];
+    var bodyHeight = bodyDimensions[3];
 
-    // Restart the original graphics context
-    ui.g.begin(false);
-
-    // Draw the window texture to the screen as specified by the parent
-    ui.g.drawScaledSubImage(texture, 0, 0, width, height, x, y, width, height);
+    previouslyDrawnWidth  = Math.max(0, bodyWidth);
+    previouslyDrawnHeight = Math.max(0, bodyHeight);
   }
 
   /**
    * Sets the size of the window.
    */
   private function initTexture(width:Float, height:Float) {
+    var width = Math.max(1, width);
+    var height = Math.max(1, height);
+
     if (texture == null || texture.width != width || texture.height != height) {
       texture = kha.Image.createRenderTarget(Std.int(width), Std.int(height), kha.graphics4.TextureFormat.RGBA32, kha.graphics4.DepthStencilFormat.NoDepthAndStencil, 1);
     }

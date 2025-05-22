@@ -48,7 +48,7 @@ class Application {
 		// Now get the `g2` graphics object so we can draw
 		final g2 = fb.g2;
 
-    ui.setWindowSize(fb.width, fb.height);
+    ui.setScreenSize(fb.width, fb.height);
 
 		// Start drawing, and clear the framebuffer to `petrol`
 		g2.begin(true, Color.fromBytes(0, 0, 0));
@@ -57,12 +57,28 @@ class Application {
 
     // Render UI after other rendering finishes
     ui.begin(g2);
-      ui.window(Id.handle(), "First Window", 30, 30, 300, 300);
-      ui.window(Id.handle(), "Second Window", 350, 30, 200, 300);
-      ui.window(Id.handle(), "Third Window", 670, 30, 300, 500);
-      ui.window(Id.handle(), "Fourth Window", 30, 350, 400, 400);
-      ui.window(Id.handle(), "Fifth Window", 450, 350, 300, 300);
-      ui.window(Id.handle(), "Sixth Window", 800, 350, 300, 300);
+      if (ui.window(Id.handle(), "First Window", 30, 30, 300, 300)) {
+        ui.text("Hello World!");
+        ui.text("This is window 1");
+
+        if (ui.button("Click Me")) {
+          trace("First Window Button Clicked");
+        }
+      }
+      
+      if (ui.window(Id.handle(), "Second Window", 350, 30, 200, 300)) {
+        ui.text("Another window!");
+        if (ui.button("Click Me Too")) {
+          trace("Second Window Button Clicked");
+        }
+      }
+
+      if (ui.window(Id.handle(), "Third Window", 350, 30, 200, 300)) {
+        ui.text("Three window?! Wow!");
+        if (ui.button("Third Button")) {
+          trace("Third Window Button Clicked");
+        }
+      }
     ui.end();
   }
 }
