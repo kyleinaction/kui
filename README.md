@@ -10,6 +10,31 @@ Kimgui (Kha Immediate Mode Graphical User Interface) is an immediate mode graphi
 - Easy to extend and add new elements.
 
 ## Examples
+
+```haxe
+  // Put in an init function, constructor, etc()
+  var ui = new Kimgui({ font: Assets.fonts.OpenSansMedium });
+
+  // ...
+
+  public function render(framebuffers: Array<Framebuffer>):Void {
+		final fb = framebuffers[0];
+		final g2 = fb.g2;
+
+    ui.setWindowSize(fb.width, fb.height);
+
+		g2.begin(true, Color.fromBytes(0, 0, 0));
+      // Do normal rendering here
+    g2.end();
+
+    // Render UI after other rendering finishes
+    ui.begin(g2);
+      ui.window(Id.handle(), "Window", 30, 30, 300, 300, function () {
+        ui.text("The contents of the window.");
+      });
+    ui.end();
+```
+
 ### Node Splitting
 ![Example of window splitting](support/images/splitResizeZOrdering.gif)
 

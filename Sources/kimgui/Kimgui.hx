@@ -212,12 +212,12 @@ class Kimgui {
    * Renders the final node/window contents.
    */
   public function end() {
-    g.begin(false);
-      // Render node contents
-      // for (node in m_nodes.reversedValues()) {
-      //   handleNodeInputs(node);
-      // }
+    // Render node contents
+    for (node in m_nodes.reversedValues()) {
+      handleNodeInputs(node);
+    }
 
+    g.begin(false);
       for (node in m_nodes) {
         node.render(this, m_options.theme);
       }
@@ -236,7 +236,6 @@ class Kimgui {
       m_currentWindow = activeWindow;
       activeWindow.handleInput(this, m_options.theme, node.getScreenX(), node.getScreenY(), node.width, node.height);
       m_currentWindow = null;
-      return;
     }
 
     for (childNode in node.nodes) {

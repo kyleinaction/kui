@@ -64,51 +64,48 @@ class Window {
    * Renders the window & it's contents.
    */
   public function render(ui:Kimgui, theme: Theme, x:Float, y:Float, width:Float, height:Float):Void {
-    initTexture(previouslyDrawnWidth, previouslyDrawnHeight);
-
-    // Set the texture as the drawing target for Kimgui
+    // End main graphics context and store
+    ui.g.end();
     var globalG = ui.g;
 
-    // // End the global graphics context
-    globalG.end();
+    // Update the window texture size if it has changed
+    initTexture(previouslyDrawnWidth, previouslyDrawnHeight);
 
-    // // Start the window graphics context
+    // Attach the texture as the UI draw target
     ui.g = texture.g2;
-    ui.g.begin(false, theme.WINDOW_BG_COLOR);
 
-      // Reset the cursor to the top left of the window
+    // Clear the texture
+    ui.g.begin(true, theme.WINDOW_BG_COLOR);
+
+      // Reset the cursor position
       ui.setCursor(0, 0);
 
-      // Draw the window background contents
-      ui.drawRect(x, y, width, height, theme.WINDOW_BG_COLOR);
+      // Draw elements
+      for (element in drawList) {
+        element.render(ui);
+      }
 
-    //   ui.drawString("WTF!!!!", 0, 0, theme.TEXT_COLOR, theme.TEXT_SIZE);
-
-    //   // Iterate over draw list and render each element
-    //   // for (element in drawList) {
-    //   //   element.render(ui);
-    //   // }
-    
-    //   previouslyDrawnHeight = Math.max(0, height);
-    //   previouslyDrawnWidth  = Math.max(0, width);
-
-    // // End the window graphics context
+    // Finish texture drawing
     ui.g.end();
 
-    // // Return the graphics object to the original
+    // Restore the main graphics context
     ui.g = globalG;
 
-    // // Restart the original graphics context
+    // Draw the window texture to the screen
     ui.g.begin(false);
+    ui.g.drawScaledSubImage(texture, 0, 0, width, height, x, y, width, height);
 
-    // Draw the window texture to the screen as specified by the parent
-    // ui.g.drawScaledSubImage(texture, 0, 0, width, height, x, y, width, height);
+    previouslyDrawnHeight = Math.max(0, height);
+    previouslyDrawnWidth  = Math.max(0, width);
   }
 
   /**
    * Sets the size of the window.
    */
   private function initTexture(width:Float, height:Float) {
+    width = Math.max(1, width);
+    height = Math.max(1, height);
+
     if (texture == null || texture.width != width || texture.height != height) {
       texture = kha.Image.createRenderTarget(Std.int(width), Std.int(height), kha.graphics4.TextureFormat.RGBA32, kha.graphics4.DepthStencilFormat.NoDepthAndStencil, 1);
     }

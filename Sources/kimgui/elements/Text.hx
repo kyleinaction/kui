@@ -13,7 +13,6 @@ class Text extends BaseDrawable {
   }
 
   public function render(ui: Kimgui):Void {
-    trace("FUCK");
     ui.drawString(text, x, y, color, size);
   }
 }
