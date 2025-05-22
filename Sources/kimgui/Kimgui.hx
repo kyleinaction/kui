@@ -230,6 +230,9 @@ class Kimgui {
     endInput();
   }
 
+  /**
+   * Runs the function for all windows in the node tree.
+   */
   public function handleNodeInputs(node:Node) {
     var activeWindow = node.getActiveWindow();
     if (activeWindow != null) {
@@ -242,7 +245,6 @@ class Kimgui {
       handleNodeInputs(childNode);
     }
   }
-
 
   /**
    * Merges two nodes together.

@@ -12,6 +12,9 @@ class Window {
    */
   public var node: Node;
 
+  /**
+   * List of elements to be drawn in the window.
+   */
   public var drawList: Array<Drawable>;
 
   /**
@@ -51,6 +54,9 @@ class Window {
     previouslyDrawnWidth  = 0;
   }
 
+  /**
+   * Sets up UI and calls the function to process the window.
+   */
   public function handleInput(ui:Kimgui, theme: Theme, x:Float, y:Float, width:Float, height:Float):Void {
     ui.setCursor(0, 0);
     drawList = [];
