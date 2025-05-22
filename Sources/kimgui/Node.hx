@@ -229,7 +229,10 @@ class Node {
   public function addWindow(window: Window) {
     if (window.node != null) {
       window.node.windows.remove(window);
-      window.node.m_activeWindow = null;  
+
+      if (window.node.m_activeWindow == window) {
+        window.node.m_activeWindow = null;
+      }
     }
 
     window.node = this;
