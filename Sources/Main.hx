@@ -28,8 +28,11 @@ class Main {
 class Application {
   public var ui:Kimgui;
 
+  var clicks: Array<Int>;
+
   public function new() {
     ui = new Kimgui({ font: Assets.fonts.OpenSansMedium });
+    clicks = [0, 0, 0];
   }
 
   public function run():Void {
@@ -58,25 +61,28 @@ class Application {
     // Render UI after other rendering finishes
     ui.begin(g2);
       if (ui.window(Id.handle(), "First Window", 30, 30, 300, 300)) {
-        ui.text("Hello World!");
         ui.text("This is window 1");
+        ui.text("Click count: " + clicks[0]);
 
         if (ui.button("Click Me")) {
-          trace("First Window Button Clicked");
+          clicks[0]++;
         }
       }
       
       if (ui.window(Id.handle(), "Second Window", 350, 30, 200, 300)) {
         ui.text("Another window!");
+        ui.text("Click count: " + clicks[1]);
+
         if (ui.button("Click Me Too")) {
-          trace("Second Window Button Clicked");
+          clicks[1]++;
         }
       }
 
       if (ui.window(Id.handle(), "Third Window", 600, 30, 200, 300)) {
         ui.text("Three window?! Wow!");
+        ui.text("Click count: " + clicks[2]);
         if (ui.button("Third Button")) {
-          trace("Third Window Button Clicked");
+          clicks[2]++;
         }
       }
     ui.end();

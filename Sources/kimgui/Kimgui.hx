@@ -41,6 +41,11 @@ class Kimgui {
   private var m_draggingNode: Node;
 
   /**
+   * True if the node being dragged has moved.
+   */
+  private var m_draggingNodeHasMoved: Bool;
+
+  /**
    * The current node handle being resized (if any).
    */
   private var m_resizingHandle: ResizingHandle;
@@ -532,14 +537,16 @@ class Kimgui {
     }
     
     // Update the position of the dragged node
-    if (m_draggingNode != null) {
+    if (m_draggingNode != null && (inputDX != 0 || inputDY != 0)) {
       m_draggingNode.x = m_draggingNode.x + inputDX;
       m_draggingNode.y = m_draggingNode.y + inputDY;
+      m_draggingNodeHasMoved = true;
     }
     
     // Stop dragging if the mouse isn't down anymore
     if (inputReleased) {
       m_draggingNode = null;
+      m_draggingNodeHasMoved = false;
     }
   }
 
@@ -563,7 +570,7 @@ class Kimgui {
         if (getInputInRect(sx, sy, width, height) && inputStarted && node.parent == null && node.draggable) {
           m_draggingNode = node;
         }
-      } else {
+      } else if (m_draggingNodeHasMoved) {
         // If the current node is not the one being dragged...
         if (node != m_draggingNode) {
           // ... check to see if the input is within the bounds of another unsplit node
