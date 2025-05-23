@@ -38,6 +38,8 @@ class Node {
    * The active window. This is the window that is currently being drawn.
    */
   private var m_activeWindow: Window;
+  public var activeWindow(get, null):Window;
+  public function get_activeWindow():Window { return m_activeWindow; }
 
   /**
    * The split axis of this node if it is a split node.

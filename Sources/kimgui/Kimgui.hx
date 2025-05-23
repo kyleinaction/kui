@@ -210,7 +210,7 @@ class Kimgui {
     m_currentWindow.title = title;
     m_currentWindow.begin(this, m_options.theme);
 
-    return true;
+    return m_currentWindow.isActive();
   }
 
   /**
@@ -547,7 +547,7 @@ class Kimgui {
    * Handles the dragging of nodes.
    * This will check to see if the input is within the bounds of a node and if so, it will set that node as the current dragging node.
    */
-  private function handleDraggingNodes(nodes: Array<Node>) {
+  private function handleDraggingNodes(nodes: Array<Node>):Bool {
     for (node in nodes.reversedValues()) {
       if (node == m_draggingNode) {
         continue;
@@ -570,18 +570,22 @@ class Kimgui {
           if (getInputInRect(sx, sy, width, height) && node.nodes.length == 0) {
             // If so, show and potentionally handle the drop zones
             drawNodeDropZones(node);
-            if (handleNodeDropZones(node)) {
-              break;
-            }
+            handleNodeDropZones(node);
+            return true;
           }
         }
       }
 
       // Process child nodes
       if (node.nodes.length > 0) {
-        handleDraggingNodes(node.nodes);
+        var handled = handleDraggingNodes(node.nodes);
+        if (handled) {
+          return true;
+        }
       }
     }
+
+    return false;
   }
 
   /**

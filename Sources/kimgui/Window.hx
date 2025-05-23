@@ -43,6 +43,10 @@ class Window {
     previouslyDrawnWidth  = 0;
   }
 
+  public function isActive(): Bool {
+    return node.activeWindow == this;
+  }
+
   /**
    * Renders the window & it's contents.
    */
