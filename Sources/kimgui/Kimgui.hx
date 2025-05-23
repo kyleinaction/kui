@@ -135,7 +135,7 @@ class Kimgui {
   private var m_textPipeline: kha.graphics4.PipelineState; // Rendering text into rendertargets
 
   /**
-   * The current window draw list.
+   * Constructor.
    */
   public function new(options: Options) {
     m_nodes = [];
@@ -180,25 +180,37 @@ class Kimgui {
   }
 
   /**
-   * Sets the current node being dragged.
-   */
-  public function setDraggingNode(node: Node) {
-    m_draggingNode = node;
-  }
-
-  /**
-   * Sets the cursor position.
-   */
-  public function setCursor(x: Float, y: Float) {
-    cursorX = x;
-    cursorY = y;
-  }
-
-  /**
    * Begins the UI
    */
   public function begin(g: Graphics) {
     this.globalG = g;
+  }
+
+  /**
+   * Creates a new window.
+   */
+  public function window(handle:Handle, title:String = "", x:Float = 0.0, y:Float = 0.0, width:Float = 200.0, height:Float = 200.0):Bool {
+    if (m_currentWindow != null) {
+      endWindow();
+    }
+
+    if (handle.window == null) {
+      // Create new node
+      var node = new Node(NodeSplitAxis.NONE, x, y, width, height);
+      m_nodes.push(node);
+
+      // Create new window and add it to the node
+      m_currentWindow = new Window();
+      node.addWindow(m_currentWindow);
+      handle.window = m_currentWindow;
+    } else {
+      m_currentWindow = handle.window;
+    }
+
+    m_currentWindow.title = title;
+    m_currentWindow.begin(this, m_options.theme);
+
+    return true;
   }
 
   /**
@@ -277,6 +289,14 @@ class Kimgui {
   }
 
   /**
+   * Ends the current window.
+   */
+  public function endWindow() {
+    m_currentWindow.end(this, m_options.theme);
+    m_currentWindow = null;
+  }
+
+  /**
    * Renders the final node/window contents.
    */
   public function end() {
@@ -299,133 +319,8 @@ class Kimgui {
     endInput();
   }
 
-
   /**
-   * Merges two nodes together.
-   * This will remove the first node and add all of its windows to the second node.
-   *
-   * @TODO: this needs to be updated to be recursive. All windows belongs to all children of nodeA 
-   */
-  private function mergeNodeWindows(nodeA: Node, nodeB: Node) {
-    final windows = nodeA.getDescendantWindowsAndUnset();
-
-    for (window in windows) {
-      nodeB.addWindow(window);
-    }
-
-    nodeA.windows = [];
-    m_nodes.remove(nodeA);
-  }
-
-  /**
-   * Handles node focusing.
-   */
-  private function endNodeFocusing() {
-    doFocusNode(m_nodes);
-  }
-
-  /**
-   * Determines which node to focus.
-   */
-  private function doFocusNode(nodes: Array<Node>): Node {
-    for (node in nodes.reversedValues()) {
-      // Not a leaf node, so keep drilling into the children
-      if (node.nodes.length > 0) {
-        var focusedNode = doFocusNode(node.nodes);
-        if (focusedNode != null) {
-          return focusedNode;
-        }
-      }
-
-      // This is a leaf node
-      if (node.nodes.length == 0) {
-        if (getInputInRect(node.getScreenX(), node.getScreenY(), node.width, node.height)) {
-          if (inputStarted) {
-            focusNode(node);
-            return node;
-          }
-        }
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Ends resizing node operations.
-   */
-  private function endNodeResizing() {
-    if (m_draggingNode == null) {
-      handleResizingNodes(m_nodes);
-    }
-
-    if (m_resizingHandle != null && inputReleased) {
-      m_resizingHandle = null;
-    }
-
-    if (m_resizingHandle != null) {
-      // Need to actually do the resizing stuff here
-      m_resizingHandle.node.doResize(this, m_options.theme, m_resizingHandle.direction);
-    }
-  }
-
-  /**
-   * Ends node dragging operations.
-   */
-  private function endNodeDragging() {
-    if (m_resizingHandle == null) {
-      handleDraggingNodes(m_nodes);
-    }
-    
-    // Update the position of the dragged node
-    if (m_draggingNode != null) {
-      m_draggingNode.x = m_draggingNode.x + inputDX;
-      m_draggingNode.y = m_draggingNode.y + inputDY;
-    }
-    
-    // Stop dragging if the mouse isn't down anymore
-    if (inputReleased) {
-      m_draggingNode = null;
-    }
-  }
-
-  /**
-   * Creates a new window.
-   */
-  public function window(handle:Handle, title:String = "", x:Float = 0.0, y:Float = 0.0, width:Float = 200.0, height:Float = 200.0):Bool {
-    if (m_currentWindow != null) {
-      endWindow();
-    }
-
-    if (handle.window == null) {
-      // Create new node
-      var node = new Node(NodeSplitAxis.NONE, x, y, width, height);
-      m_nodes.push(node);
-
-      // Create new window and add it to the node
-      m_currentWindow = new Window();
-      node.addWindow(m_currentWindow);
-      handle.window = m_currentWindow;
-    } else {
-      m_currentWindow = handle.window;
-    }
-
-    m_currentWindow.title = title;
-    m_currentWindow.begin(this, m_options.theme);
-
-    return true;
-  }
-
-  /**
-   * Ends the current window.
-   */
-  public function endWindow() {
-    m_currentWindow.end(this, m_options.theme);
-    m_currentWindow = null;
-  }
-
-  /**
-   * Draws a rectangle.
+   * Draws a rectangle to the current graphics context.
    */
   public function drawRect(x: Float, y: Float, width: Float, height: Float, color: Int) {
     g.color = color;
@@ -433,7 +328,7 @@ class Kimgui {
   }
 
   /**
-   * Draws a string of text.
+   * Draws a string of text to the current graphics context.
    */
   public function drawString(text: String, x: Float, y: Float, color: Int, fontSize: Int = 12) {
     g.pipeline = m_textPipeline;
@@ -521,6 +416,48 @@ class Kimgui {
   }
 
   /**
+   * Sets the cursor position.
+   */
+  public function setCursor(x: Float, y: Float) {
+    cursorX = x;
+    cursorY = y;
+  }
+
+  /**
+   * Handles node focusing.
+   */
+  private function endNodeFocusing() {
+    doFocusNode(m_nodes);
+  }
+
+  /**
+   * Determines which node to focus.
+   */
+  private function doFocusNode(nodes: Array<Node>): Node {
+    for (node in nodes.reversedValues()) {
+      // Not a leaf node, so keep drilling into the children
+      if (node.nodes.length > 0) {
+        var focusedNode = doFocusNode(node.nodes);
+        if (focusedNode != null) {
+          return focusedNode;
+        }
+      }
+
+      // This is a leaf node
+      if (node.nodes.length == 0) {
+        if (getInputInRect(node.getScreenX(), node.getScreenY(), node.width, node.height)) {
+          if (inputStarted) {
+            focusNode(node);
+            return node;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
    * Blurs all nodes.
    */
   private function blurNodes(nodes: Array<Node>) {
@@ -549,6 +486,24 @@ class Kimgui {
   }
 
   /**
+   * Ends resizing node operations.
+   */
+  private function endNodeResizing() {
+    if (m_draggingNode == null) {
+      handleResizingNodes(m_nodes);
+    }
+
+    if (m_resizingHandle != null && inputReleased) {
+      m_resizingHandle = null;
+    }
+
+    if (m_resizingHandle != null) {
+      // Need to actually do the resizing stuff here
+      m_resizingHandle.node.doResize(this, m_options.theme, m_resizingHandle.direction);
+    }
+  }
+
+  /**
    * Finds a node, if any, to be resized.
    */
   private function handleResizingNodes(nodes: Array<Node>) {
@@ -565,6 +520,26 @@ class Kimgui {
       if (node.nodes.length > 0) {
         handleResizingNodes(node.nodes);
       }
+    }
+  }
+
+  /**
+   * Ends node dragging operations.
+   */
+  private function endNodeDragging() {
+    if (m_resizingHandle == null) {
+      handleDraggingNodes(m_nodes);
+    }
+    
+    // Update the position of the dragged node
+    if (m_draggingNode != null) {
+      m_draggingNode.x = m_draggingNode.x + inputDX;
+      m_draggingNode.y = m_draggingNode.y + inputDY;
+    }
+    
+    // Stop dragging if the mouse isn't down anymore
+    if (inputReleased) {
+      m_draggingNode = null;
     }
   }
 
@@ -607,6 +582,23 @@ class Kimgui {
         handleDraggingNodes(node.nodes);
       }
     }
+  }
+
+  /**
+   * Merges two nodes together.
+   * This will remove the first node and add all of its windows to the second node.
+   *
+   * @TODO: this needs to be updated to be recursive. All windows belongs to all children of nodeA 
+   */
+  private function mergeNodeWindows(nodeA: Node, nodeB: Node) {
+    final windows = nodeA.getDescendantWindowsAndUnset();
+
+    for (window in windows) {
+      nodeB.addWindow(window);
+    }
+
+    nodeA.windows = [];
+    m_nodes.remove(nodeA);
   }
 
   /**
@@ -808,5 +800,12 @@ class Kimgui {
     }
     
     drawRect(dropZone[0], dropZone[1], dropZone[2], dropZone[3], color);
+  }
+
+  /**
+   * Sets the current node being dragged.
+   */
+  public function setDraggingNode(node: Node) {
+    m_draggingNode = node;
   }
 }
