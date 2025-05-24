@@ -643,9 +643,23 @@ class Kimgui {
         // Find the other child node
         var parent = node.parent;
         var otherChild = parent.nodes[0] == node ? parent.nodes[1] : parent.nodes[0];
+        
         parent.nodes = [];
-        for (childWindow in otherChild.windows) {
-          parent.addWindow(childWindow);
+        otherChild.parent = null;
+
+        if (otherChild.nodes.length > 0) {
+          parent.addChild(otherChild.nodes[0]);
+          parent.addChild(otherChild.nodes[0]);
+          
+          parent.splitAxis = otherChild.splitAxis;
+          parent.splitRatio = otherChild.splitRatio;
+          parent.resizeNodes();
+        }
+
+        if (otherChild.windows.length > 0) {
+          for (childWindow in otherChild.windows) {
+            parent.addWindow(childWindow);
+          }
         }
       }
     }
