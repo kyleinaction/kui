@@ -148,6 +148,7 @@ class Kimgui {
     m_screenNode.draggable = false;
     m_screenNode.resizable = false;
     m_screenNode.stayBehind = true;
+    m_screenNode.persistWhenEmpty = true;
     
     m_isHoveringNodeHandle = false;
 
@@ -610,6 +611,44 @@ class Kimgui {
 
     nodeA.windows = [];
     m_nodes.remove(nodeA);
+  }
+
+  /**
+   * Unmerges a window from its parent.
+   * This will create a new free floating node for the window and remove it from the current node.
+   */
+  public function unmergeWindow(window:Window) {
+    var node = window.node;
+
+    // We can only unmerge if the parent has more than one window or is a child of another node
+    if (node.windows.length == 1 && node.parent == null && node.persistWhenEmpty == false) {
+      return;
+    }
+
+    // Create a new free floating node for the window
+    var newNode = new Node(NodeSplitAxis.NONE, node.x + 10, node.y + 10, node.width, node.height);
+    newNode.addWindow(window);
+    m_nodes.push(newNode);
+
+    // If this was the last window in this node, we need to remove the node
+    if (node.windows.length == 0) {
+      // Remove the node from the top level list
+      if (node.parent == null) {
+        if (!node.persistWhenEmpty) {
+          m_nodes.remove(node);
+        }
+
+      // Remove the node from it's parent  
+      } else {
+        // Find the other child node
+        var parent = node.parent;
+        var otherChild = parent.nodes[0] == node ? parent.nodes[1] : parent.nodes[0];
+        parent.nodes = [];
+        for (childWindow in otherChild.windows) {
+          parent.addWindow(childWindow);
+        }
+      }
+    }
   }
 
   /**

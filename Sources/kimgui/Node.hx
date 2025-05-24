@@ -89,6 +89,13 @@ class Node {
   public var stayBehind: Bool = false;
 
   /**
+   * Whether this node should be persistent when empty. This means that the node will not be removed
+   * from the tree when it no longer has any child windows. This is used for the screen node and the behavior
+   * for any other node should be considered undefined.
+   */
+  public var persistWhenEmpty: Bool = false;
+
+  /**
    * Whether this node is highlighted or not. This is used for dragging nodes.
    */
   public var highlighted: Bool = false;
@@ -222,14 +229,24 @@ class Node {
   }
 
   /**
+   * Removes a window from this node.
+   */
+  public function removeWindow(window:Window):Void {
+    windows.remove(window);
+    if (m_activeWindow == window) {
+      m_activeWindow = null;
+      if (windows.length > 0) {
+        m_activeWindow = windows[0];
+      }
+    }
+  }
+
+  /**
    * Adds a child window to this node.
    */
   public function addWindow(window: Window) {
     if (window.node != null) {
-      var oldParent = window.node;
-      if (oldParent.m_activeWindow == window) {
-        oldParent.m_activeWindow = null;
-      }
+      window.node.removeWindow(window);
     }
 
     window.node = this;
@@ -353,8 +370,13 @@ class Node {
       );
 
       // Set the active window if the user clicks on the window tab
-      if (ui.getInputInRect(titleBarX, titleY, tabWidth, titleHeight) && ui.inputStarted) {
-        m_activeWindow = window;
+      if (ui.getInputInRect(titleBarX, titleY, tabWidth, titleHeight)) {
+        if (ui.inputStarted) {
+          m_activeWindow = window;
+        }
+        if (ui.inputReleasedR) {
+          ui.unmergeWindow(window);
+        }
       }
 
       titleBarX = titleBarX + tabWidth + 1;
