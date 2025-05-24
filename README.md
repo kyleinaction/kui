@@ -68,10 +68,10 @@ class Application {
 ![Example with buttons](support/images/buttons.gif)
 
 ### Node Splitting
-![Example of window splitting](support/images/splitResizeZOrdering.gif)
+![Example of window splitting](support/images/splittingUnsplitting.gif)
 
 ### Node Merging
-![Example of window merging](support/images/mergeResizeZOrdering.gif)
+![Example of window merging](support/images/mergingUnmerging.gif)
 
 ## TODO
 
