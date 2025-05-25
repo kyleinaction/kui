@@ -76,6 +76,11 @@ class Kimgui {
   public var inputDY: Float;
 
   /**
+   * The current input scroll value.
+   */
+  public var inputScroll: Int;
+
+  /**
    * True if the input was started this frame.
    */
   public var inputStarted: Bool;
@@ -298,6 +303,15 @@ class Kimgui {
    * Ends the current window.
    */
   public function endWindow() {
+    // Handle window scrolling
+    var node = m_currentWindow.node;
+    var bodyRect = node.getBodyRect(m_options.theme);
+    if (isHovering(bodyRect[0], bodyRect[1], bodyRect[2], bodyRect[3])) {
+      if (inputScroll != 0) {
+        m_currentWindow.scroll(inputScroll, m_options.theme);
+      }
+    }
+
     m_currentWindow.end(this, m_options.theme);
     m_currentWindow = null;
   }
@@ -386,7 +400,7 @@ class Kimgui {
    * Called when the mouse wheel is scrolled.
    */
   public function onMouseWheel(delta: Int) {
-
+    inputScroll = delta;
   }
 
   /**
@@ -417,6 +431,7 @@ class Kimgui {
     inputReleasedR = false;
     inputDX = 0;
     inputDY = 0;
+    inputScroll = 0;
 
     m_isHoveringNodeHandle = false;
   }

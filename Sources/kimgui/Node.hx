@@ -384,7 +384,7 @@ class Node {
 
     // Copy the active window texture to the screen
     if (m_activeWindow != null) {
-      ui.g.drawScaledSubImage(m_activeWindow.texture, 0, 0, 
+      ui.g.drawScaledSubImage(m_activeWindow.texture, 0, m_activeWindow.scrollY, 
         Std.int(bodyWidth), Std.int(bodyHeight), Std.int(bodyX), Std.int(bodyY), Std.int(bodyWidth), Std.int(bodyHeight));
     }
 

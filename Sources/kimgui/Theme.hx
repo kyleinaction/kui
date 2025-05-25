@@ -34,4 +34,6 @@ typedef Theme = {
   var BUTTON_HEIGHT: Float;
   var BUTTON_TEXT_COLOR: Int;
   var BUTTON_TEXT_SIZE: Int;
+
+  var SCROLL_SPEED: Float;
 }

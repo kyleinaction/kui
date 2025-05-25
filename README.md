@@ -92,5 +92,6 @@ class Application {
 - [ ] Panels.
 - [ ] Text inputs.
 - [ ] Images.
+- [ ] Support horizonal window layouts.
 - [ ] Ability to create rows.
 - [ ] Ability to indent/unindent.

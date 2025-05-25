@@ -35,14 +35,35 @@ class Window {
   public var previouslyDrawnWidth: Float;
 
   /**
+   * The vetical scroll position of the window.
+   */
+  public var scrollY: Float;
+
+  /**
+   * The width of the window (cached from the last frame, might be stale). For the most accurate width, use `node.getBodyRect(theme)`.
+   */
+  public var width: Float;
+
+  /**
+   * The height of the window (cached from the last frame, might be stale). For the most accurate height, use `node.getBodyRect(theme)`.
+   */
+  public var height: Float;
+
+  /**
    * Constructor.
    */
   public function new() {
     title = "";
+    width = 0;
+    height = 0;
     previouslyDrawnHeight = 0;
     previouslyDrawnWidth  = 0;
+    scrollY = 0;
   }
 
+  /**
+   * Will return TRUE if this window is the active window of it's parent node.
+   */
   public function isActive(): Bool {
     return node.activeWindow == this;
   }
@@ -67,11 +88,26 @@ class Window {
     ui.g.end();
 
     var bodyDimensions = node.getBodyRect(theme);
-    var bodyWidth = bodyDimensions[2];
-    var bodyHeight = bodyDimensions[3];
+    width = bodyDimensions[2];
+    height = bodyDimensions[3];
 
-    previouslyDrawnWidth  = Math.max(0, bodyWidth);
-    previouslyDrawnHeight = Math.max(0, bodyHeight);
+    previouslyDrawnWidth  = Math.max(0, width);
+    previouslyDrawnHeight = Math.max(ui.cursorY, height);
+
+    var visibleBottom = height + scrollY;
+    if (visibleBottom > previouslyDrawnHeight) {
+      scrollY -= visibleBottom - previouslyDrawnHeight;
+    }
+  }
+
+  /**
+   * Scrolls the window by a given delta.
+   */
+  public function scroll(delta:Float, theme:Theme):Void {
+    var bodyDimensions = node.getBodyRect(theme);
+    scrollY += delta * theme.SCROLL_SPEED;
+    scrollY = Math.max(0, scrollY);
+    scrollY = Math.min(scrollY, previouslyDrawnHeight - bodyDimensions[3]);
   }
 
   /**
@@ -84,11 +120,5 @@ class Window {
     if (texture == null || texture.width != width || texture.height != height) {
       texture = kha.Image.createRenderTarget(Std.int(width), Std.int(height), kha.graphics4.TextureFormat.RGBA32, kha.graphics4.DepthStencilFormat.NoDepthAndStencil, 1);
     }
-  }
-}
-
-
-class Drawable {
-  public function new() {
   }
 }
