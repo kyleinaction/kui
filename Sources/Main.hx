@@ -67,6 +67,12 @@ class Application {
         if (ui.button("Click Me")) {
           clicks[0]++;
         }
+
+        ui.text("Lorem ipsum dolor sit amet,");
+        ui.text("consectetur adipiscing elit.");
+        ui.text("Integer sed nisi in orci posuere venenatis.");
+        ui.text("Integer sollicitudin purus nec tortor");
+        ui.text("congue consequat. Proin varius luctus aliquam.");
       }
       
       if (ui.window(Id.handle(), "Second Window", 350, 30, 200, 300)) {
@@ -76,6 +82,12 @@ class Application {
         if (ui.button("Click Me Too")) {
           clicks[1]++;
         }
+
+        ui.text("Lorem ipsum dolor sit amet,");
+        ui.text("consectetur adipiscing elit.");
+        ui.text("Integer sed nisi in orci posuere venenatis.");
+        ui.text("Integer sollicitudin purus nec tortor");
+        ui.text("congue consequat. Proin varius luctus aliquam.");
       }
 
       if (ui.window(Id.handle(), "Third Window", 600, 30, 200, 300)) {
@@ -84,6 +96,12 @@ class Application {
         if (ui.button("Third Button")) {
           clicks[2]++;
         }
+
+        ui.text("Lorem ipsum dolor sit amet,");
+        ui.text("consectetur adipiscing elit.");
+        ui.text("Integer sed nisi in orci posuere venenatis.");
+        ui.text("Integer sollicitudin purus nec tortor");
+        ui.text("congue consequat. Proin varius luctus aliquam.");
       }
     ui.end();
   }

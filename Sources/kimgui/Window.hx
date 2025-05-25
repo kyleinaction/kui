@@ -91,6 +91,10 @@ class Window {
     width = bodyDimensions[2];
     height = bodyDimensions[3];
 
+
+    if (!isActive())
+      return;
+  
     previouslyDrawnWidth  = Math.max(0, width);
     previouslyDrawnHeight = Math.max(ui.cursorY, height);
 

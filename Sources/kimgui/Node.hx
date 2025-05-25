@@ -96,11 +96,6 @@ class Node {
   public var persistWhenEmpty: Bool = false;
 
   /**
-   * Whether this node is highlighted or not. This is used for dragging nodes.
-   */
-  public var highlighted: Bool = false;
-
-  /**
    * True if this node or one of it's children is focused.
    */
   public var isFocused: Bool = false;
@@ -376,10 +371,18 @@ class Node {
     if (m_activeWindow != null) {
       ui.g.drawScaledSubImage(m_activeWindow.texture, 0, m_activeWindow.scrollY, 
         Std.int(bodyWidth), Std.int(bodyHeight), Std.int(bodyX), Std.int(bodyY), Std.int(bodyWidth), Std.int(bodyHeight));
-    }
 
-    if (highlighted) {
-      ui.drawRect(sx, sy, width, height, theme.NODE_HIGHLIGHT_COLOR);
+
+      // Rendering the scroll bar if necessary
+      if (m_activeWindow.previouslyDrawnHeight > bodyHeight) {
+        var scrollBarWidth = theme.SCROLLBAR_THICKNESS;
+        var scrollBarHeight = bodyHeight * (bodyHeight / m_activeWindow.previouslyDrawnHeight);
+        
+        var scrollPercentage = m_activeWindow.scrollY / (m_activeWindow.previouslyDrawnHeight - bodyHeight);
+        var scrollBarY = bodyY + (bodyHeight - scrollBarHeight) * scrollPercentage;
+
+        ui.drawRect(bodyX + bodyWidth - scrollBarWidth, scrollBarY, scrollBarWidth, scrollBarHeight, theme.SCROLLBAR_COLOR);
+      }
     }
   }
 

@@ -28,7 +28,11 @@ class DarkTheme {
 
     // General Element properties
     ELEMENT_SPACING: 4,
+
+    // Scrollbar properties
     SCROLL_SPEED: 4.0,
+    SCROLLBAR_COLOR: 0xFF00508E,
+    SCROLLBAR_THICKNESS: 4.0,
 
     // Button properties
     BUTTON_COLOR: 0xFF003F6F,

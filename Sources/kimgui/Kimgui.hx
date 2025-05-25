@@ -307,7 +307,7 @@ class Kimgui {
     var node = m_currentWindow.node;
     var bodyRect = node.getBodyRect(m_options.theme);
     if (isHovering(bodyRect[0], bodyRect[1], bodyRect[2], bodyRect[3])) {
-      if (inputScroll != 0) {
+      if (inputScroll != 0 && m_currentWindow.isActive()) {
         m_currentWindow.scroll(inputScroll, m_options.theme);
       }
     }

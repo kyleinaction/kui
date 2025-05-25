@@ -35,5 +35,7 @@ typedef Theme = {
   var BUTTON_TEXT_COLOR: Int;
   var BUTTON_TEXT_SIZE: Int;
 
+  var SCROLLBAR_COLOR: Int;
+  var SCROLLBAR_THICKNESS: Float;
   var SCROLL_SPEED: Float;
 }
