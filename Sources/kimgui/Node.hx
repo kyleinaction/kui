@@ -106,11 +106,6 @@ class Node {
   public var isFocused: Bool = false;
 
   /**
-   * Debug border color.
-   */
-  private var m_debugColor: Int;
-
-  /**
    * The constructor for the Node class.
    */
   public function new(splitAxis: NodeSplitAxis, x:Float = 0, y:Float = 0, width:Float = 0, height:Float = 0) {
@@ -124,8 +119,6 @@ class Node {
     this.y         = y;
     this.width     = width;
     this.height    = height;
-
-    this.m_debugColor = Color.fromFloats(Math.random(), Math.random(), Math.random(), 0.25);
   }
 
   /**
@@ -318,9 +311,6 @@ class Node {
   public function render(ui:Kimgui, theme:Theme) {
     var sx = getScreenX();
     var sy = getScreenY();
-
-    // Draw debug border
-    // ui.drawRect(sx - 10, sy - 10, width + 20, height + 20, m_debugColor);
 
     // This is a parent node, so delegate rendering to children
     if (nodes.length > 0) {
