@@ -83,7 +83,8 @@ class Application {
 - [x] Sorting nodes/windows.
 - [x] Detach nodes from their parent.
 - [x] Preventing event propagation.
-- [ ] Window scrolling.
+- [x] Window scrolling.
+- [ ] Can use scrollbar dragging to scroll the window.
 - [x] Text/Labels.
 - [x] Buttons.
 - [ ] Radio buttons.
