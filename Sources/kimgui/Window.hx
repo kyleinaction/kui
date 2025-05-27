@@ -69,11 +69,18 @@ class Window {
   }
 
   /**
+   * Returns TRUE if the scroll bar should be rendered.
+   */
+  public function scrollBarVisible():Bool {
+    return height < previouslyDrawnHeight;
+  }
+
+  /**
    * Renders the window & it's contents.
    */
   public function begin(ui:Kimgui, theme: Theme):Void {
     initTexture(previouslyDrawnWidth, previouslyDrawnHeight);
-    ui.setCursor(0, 0);
+    ui.setCursor(0, theme.WINDOW_BODY_PADDING);
     ui.g = texture.g2;
     ui.g.begin(true, theme.WINDOW_BG_COLOR);
 

@@ -236,7 +236,7 @@ class Kimgui {
    * Draws a text element at the current cursor position and moves the cursor.
    */
   public function text(text: String) {
-    drawString(text, 0, cursorY, m_options.theme.TEXT_COLOR, m_options.theme.TEXT_SIZE);
+    drawString(text, m_options.theme.WINDOW_BODY_PADDING, cursorY, m_options.theme.TEXT_COLOR, m_options.theme.TEXT_SIZE);
     cursorY += m_options.font.height(m_options.theme.TEXT_SIZE) + m_options.theme.ELEMENT_SPACING;
   }
 
@@ -245,6 +245,8 @@ class Kimgui {
    * Returns true if the button was clicked.
    */
   public function button(text: String) {
+    var scrollBarWidth = m_currentWindow.scrollBarVisible() ? 4 : 0;
+
     var clicked = false;
 
     var color = m_options.theme.BUTTON_COLOR;
@@ -254,10 +256,13 @@ class Kimgui {
     var sx = bodyRect[0];
     var sy = bodyRect[1];
 
-    var width = m_currentWindow.previouslyDrawnWidth;
+    var localX = cursorX + m_options.theme.WINDOW_BODY_PADDING;
+    var localY = cursorY;
+
+    var width = m_currentWindow.previouslyDrawnWidth - (m_options.theme.WINDOW_BODY_PADDING * 2) - scrollBarWidth;
     var height = m_options.theme.BUTTON_HEIGHT;
 
-    if (isHovering(bodyRect[0], bodyRect[1], bodyRect[2], bodyRect[3]) && isHovering(sx + cursorX, sy + cursorY - m_currentWindow.scrollY, width, height)) {
+    if (isHovering(bodyRect[0], bodyRect[1], bodyRect[2], bodyRect[3]) && isHovering(sx + localX, sy + localY - m_currentWindow.scrollY, width, height)) {
       color = m_options.theme.BUTTON_HOVER_COLOR;
       if (inputDown) {
         color = m_options.theme.BUTTON_ACTIVE_COLOR;
@@ -267,13 +272,14 @@ class Kimgui {
       }
     }
 
+
     var textWidth = m_options.font.width(m_options.theme.BUTTON_TEXT_SIZE, text);
     var textHeight = m_options.font.height(m_options.theme.BUTTON_TEXT_SIZE);
 
-    var textX = cursorX + (width / 2) - (textWidth / 2);
-    var textY = cursorY + (height / 2) - (textHeight / 2) - 1;
+    var textX = localX + (width / 2) - (textWidth / 2);
+    var textY = localY + (height / 2) - (textHeight / 2) - 1;
 
-    drawRect(cursorX, cursorY, width, height, color);
+    drawRect(localX, localY, width, height, color);
     drawString(text, textX, textY, m_options.theme.BUTTON_TEXT_COLOR, m_options.theme.BUTTON_TEXT_SIZE);
 
     cursorY += height + m_options.theme.ELEMENT_SPACING;
