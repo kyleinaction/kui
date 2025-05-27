@@ -1,6 +1,7 @@
 package kimgui;
 
 import kha.Color;
+import kha.input.Mouse;
 import haxe.Exception;
 
 /**
@@ -428,28 +429,28 @@ class Node {
     var leftRect = getResizeHandleRect(NodeSplitDirection.LEFT, theme);
     var rightRect = getResizeHandleRect(NodeSplitDirection.RIGHT, theme);
 
-    if (ui.getInputInRect(topRect[0], topRect[1], topRect[2], topRect[3]) && ui.inputStarted && canHaveTopHandle) {
+    if (ui.isHovering(topRect[0], topRect[1], topRect[2], topRect[3], this) && ui.inputStarted && canHaveTopHandle) {
       return {
         node: this,
         direction: NodeSplitDirection.TOP
       };
       
     // Check Bottom
-    } else if (ui.getInputInRect(bottomRect[0], bottomRect[1], bottomRect[2], bottomRect[3]) && ui.inputStarted && canHaveBottomHandle) {
+    } else if (ui.isHovering(bottomRect[0], bottomRect[1], bottomRect[2], bottomRect[3], this) && ui.inputStarted && canHaveBottomHandle) {
       return {
         node: this,
         direction: NodeSplitDirection.BOTTOM
       };
       
     // Check Left
-    } else if (ui.getInputInRect(leftRect[0], leftRect[1], leftRect[2], leftRect[3]) && ui.inputStarted && canHaveLeftHandle) {
+    } else if (ui.isHovering(leftRect[0], leftRect[1], leftRect[2], leftRect[3], this) && ui.inputStarted && canHaveLeftHandle) {
       return {
         node: this,
         direction: NodeSplitDirection.LEFT
       };
       
     // Check Right 
-    } else if (ui.getInputInRect(rightRect[0], rightRect[1], rightRect[2], rightRect[3]) && ui.inputStarted && canHaveRightHandle) {
+    } else if (ui.isHovering(rightRect[0], rightRect[1], rightRect[2], rightRect[3], this) && ui.inputStarted && canHaveRightHandle) {
       return {
         node: this,
         direction: NodeSplitDirection.RIGHT
@@ -548,20 +549,21 @@ class Node {
     var leftRect = getResizeHandleRect(NodeSplitDirection.LEFT, theme);
     var rightRect = getResizeHandleRect(NodeSplitDirection.RIGHT, theme);
 
-    if (ui.getInputInRect(topRect[0], topRect[1], topRect[2], topRect[3])) {
-      ui.drawRect(topRect[0], topRect[1], topRect[2], topRect[3], theme.WINDOW_RESIZE_HANDLE_COLOR);
+    // Check top
+    if (ui.isHovering(topRect[0], topRect[1], topRect[2], topRect[3], this)) {
+      Mouse.get().setSystemCursor(kha.input.MouseCursor.NorthSouthResize);
       return true;
     // Check Bottom
-    } else if (ui.getInputInRect(bottomRect[0], bottomRect[1], bottomRect[2], bottomRect[3])) {
-      ui.drawRect(bottomRect[0], bottomRect[1], bottomRect[2], bottomRect[3], theme.WINDOW_RESIZE_HANDLE_COLOR);
+    } else if (ui.isHovering(bottomRect[0], bottomRect[1], bottomRect[2], bottomRect[3], this)) {
+      Mouse.get().setSystemCursor(kha.input.MouseCursor.NorthSouthResize);
       return true;
     // Check Left
-    } else if (ui.getInputInRect(leftRect[0], leftRect[1], leftRect[2], leftRect[3])) {
-      ui.drawRect(leftRect[0], leftRect[1], leftRect[2], leftRect[3], theme.WINDOW_RESIZE_HANDLE_COLOR);
+    } else if (ui.isHovering(leftRect[0], leftRect[1], leftRect[2], leftRect[3], this)) {
+      Mouse.get().setSystemCursor(kha.input.MouseCursor.EastWestResize);
       return true;
     // Check Right 
-    } else if (ui.getInputInRect(rightRect[0], rightRect[1], rightRect[2], rightRect[3])) {
-      ui.drawRect(rightRect[0], rightRect[1], rightRect[2], rightRect[3], theme.WINDOW_RESIZE_HANDLE_COLOR);
+    } else if (ui.isHovering(rightRect[0], rightRect[1], rightRect[2], rightRect[3], this)) {
+      Mouse.get().setSystemCursor(kha.input.MouseCursor.EastWestResize);
       return true;
     }
 

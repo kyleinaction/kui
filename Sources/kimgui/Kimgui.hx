@@ -195,6 +195,14 @@ class Kimgui {
    */
   public function begin(g: Graphics) {
     this.globalG = g;
+    beginInput();
+  }
+
+  /**
+   * Begins the input handling.
+   */
+  private function beginInput():Void {
+    Mouse.get().setSystemCursor(kha.input.MouseCursor.Default);
   }
 
   /**
@@ -242,13 +250,14 @@ class Kimgui {
     var color = m_options.theme.BUTTON_COLOR;
     
     var bodyRect = m_currentWindow.node.getBodyRect(m_options.theme);
+
     var sx = bodyRect[0];
     var sy = bodyRect[1];
 
     var width = m_currentWindow.previouslyDrawnWidth;
     var height = m_options.theme.BUTTON_HEIGHT;
 
-    if (isHovering(sx + cursorX, sy + cursorY, width, height)) {
+    if (isHovering(bodyRect[0], bodyRect[1], bodyRect[2], bodyRect[3]) && isHovering(sx + cursorX, sy + cursorY - m_currentWindow.scrollY, width, height)) {
       color = m_options.theme.BUTTON_HOVER_COLOR;
       if (inputDown) {
         color = m_options.theme.BUTTON_ACTIVE_COLOR;
@@ -275,12 +284,18 @@ class Kimgui {
    * Returns TRUE if the input is within the bounds of the given rectangle AND
    * the x/y are not obscured by any other node.
    */
-  public function isHovering(x, y, width, height): Bool {
+  public function isHovering(x, y, width, height, node:Node = null): Bool {
     if (!getInputInRect(x, y, width, height)) {
       return false;
     }
 
-    var rootNode = m_currentWindow.node.getRoot();
+    var rootNode = null;
+    if (node != null) {
+      rootNode = node.getRoot();
+    } else {
+      rootNode = m_currentWindow.node.getRoot();
+    }
+
     var foundRoot = false;
     for (node in m_nodes) {
       if (node == rootNode) {
