@@ -236,11 +236,12 @@ class Kimgui {
    * Draws a text element at the current cursor position and moves the cursor.
    */
   public function text(text: String, wrap:Bool = true) {
+    var scrollBarWidth = m_currentWindow.scrollBarVisible() ? m_options.theme.SCROLLBAR_THICKNESS : 0;
     if (!wrap) {
       drawString(text, m_options.theme.WINDOW_BODY_PADDING, cursorY, m_options.theme.TEXT_COLOR, m_options.theme.TEXT_SIZE);
       cursorY += m_options.font.height(m_options.theme.TEXT_SIZE) + m_options.theme.ELEMENT_SPACING;
     } else {
-      var width = m_currentWindow.width - (m_options.theme.WINDOW_BODY_PADDING * 2);
+      var width = m_currentWindow.width - (m_options.theme.WINDOW_BODY_PADDING * 2) - scrollBarWidth;
       var words = text.split(" ");
       var line = words.shift();
 
@@ -267,7 +268,7 @@ class Kimgui {
    * Returns true if the button was clicked.
    */
   public function button(text: String) {
-    var scrollBarWidth = m_currentWindow.scrollBarVisible() ? 4 : 0;
+    var scrollBarWidth = m_currentWindow.scrollBarVisible() ? m_options.theme.SCROLLBAR_THICKNESS : 0;
 
     var clicked = false;
 
