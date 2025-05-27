@@ -235,9 +235,31 @@ class Kimgui {
   /**
    * Draws a text element at the current cursor position and moves the cursor.
    */
-  public function text(text: String) {
-    drawString(text, m_options.theme.WINDOW_BODY_PADDING, cursorY, m_options.theme.TEXT_COLOR, m_options.theme.TEXT_SIZE);
-    cursorY += m_options.font.height(m_options.theme.TEXT_SIZE) + m_options.theme.ELEMENT_SPACING;
+  public function text(text: String, wrap:Bool = true) {
+    if (!wrap) {
+      drawString(text, m_options.theme.WINDOW_BODY_PADDING, cursorY, m_options.theme.TEXT_COLOR, m_options.theme.TEXT_SIZE);
+      cursorY += m_options.font.height(m_options.theme.TEXT_SIZE) + m_options.theme.ELEMENT_SPACING;
+    } else {
+      var width = m_currentWindow.width - (m_options.theme.WINDOW_BODY_PADDING * 2);
+      var words = text.split(" ");
+      var line = words.shift();
+
+      while (words.length > 0) {
+        var nextWord = words.shift();
+        var lineWidth = m_options.font.width(m_options.theme.TEXT_SIZE, line + " " + nextWord);
+        
+        if (lineWidth > width) {
+          drawString(line, m_options.theme.WINDOW_BODY_PADDING, cursorY, m_options.theme.TEXT_COLOR, m_options.theme.TEXT_SIZE);
+          cursorY += m_options.font.height(m_options.theme.TEXT_SIZE) + m_options.theme.ELEMENT_SPACING;
+          line = nextWord;
+        } else {
+          line = line + " " + nextWord;
+        }
+      }
+
+      drawString(line, m_options.theme.WINDOW_BODY_PADDING, cursorY, m_options.theme.TEXT_COLOR, m_options.theme.TEXT_SIZE);
+      cursorY += m_options.font.height(m_options.theme.TEXT_SIZE) + m_options.theme.ELEMENT_SPACING;
+    }
   }
 
   /**
