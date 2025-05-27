@@ -656,7 +656,7 @@ class Kimgui {
     }
 
     // Create a new free floating node for the window
-    var newNode = new Node(NodeSplitAxis.NONE, node.x + 10, node.y + 10, node.width, node.height);
+    var newNode = new Node(NodeSplitAxis.NONE, node.getScreenX() + 10, node.getScreenY() + 10, node.width, node.height);
     newNode.addWindow(window);
     m_nodes.push(newNode);
 
