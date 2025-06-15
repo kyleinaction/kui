@@ -87,7 +87,7 @@ class Application {
 - [ ] Can use scrollbar dragging to scroll the window.
 - [x] Text/Labels.
 - [x] Buttons.
-- [ ] Radio buttons.
+- [x] Radio buttons.
 - [x] Check-boxes.
 - [ ] Combo-boxes.
 - [ ] Panels.
