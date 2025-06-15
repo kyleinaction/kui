@@ -1,6 +1,7 @@
 package kimgui;
 
 using kimgui.lib.ReverseArrayIterator;
+using kimgui.GraphicsExtension;
 
 import kha.graphics2.Graphics;
 import kha.input.Mouse;
@@ -336,6 +337,33 @@ class Kimgui {
   }
 
   /**
+   * Draws a radio button at the current cursor position and moves the cursor.
+   * Returns true if the radio button is selected.
+   */
+  public function radio(groupHandle:Handle, index:Int):Bool {
+    var bodyRect = m_currentWindow.node.getBodyRect(m_options.theme);
+
+    var sx = bodyRect[0];
+    var sy = bodyRect[1];
+    var localX = cursorX + m_options.theme.WINDOW_BODY_PADDING;
+
+    if (isHovering(sx + localX, sy + cursorY, m_options.theme.CHECKBOX_SIZE, m_options.theme.CHECKBOX_SIZE)) {
+      if (inputReleased) {
+        groupHandle.selectedIndex = index;
+      }
+    }
+    
+    drawCircle(localX, cursorY, m_options.theme.CHECKBOX_SIZE, m_options.theme.CHECKBOX_COLOR);
+    if (groupHandle.selectedIndex == index) {
+      var padding = m_options.theme.CHECKBOX_PADDING;
+      drawCircle(localX + padding, cursorY + padding, m_options.theme.CHECKBOX_SIZE - padding * 2, m_options.theme.CHECKBOX_CHECK_COLOR);
+    }
+
+    cursorY += m_options.theme.CHECKBOX_SIZE + m_options.theme.ELEMENT_SPACING;
+    return groupHandle.selectedIndex == index;
+  }
+
+  /**
    * Returns TRUE if the input is within the bounds of the given rectangle AND
    * the x/y are not obscured by any other node.
    */
@@ -415,6 +443,14 @@ class Kimgui {
   public function drawRect(x: Float, y: Float, width: Float, height: Float, color: Int) {
     g.color = color;
     g.fillRect(x, y, width, height);
+  }
+
+  /**
+   * Draws a circle to the current graphics context.
+   */
+  public function drawCircle(x: Float, y: Float, size: Float, color: Int) {
+    g.color = color;
+    g.fillCircle(x + size / 2, y + size / 2, size / 2);
   }
 
   /**

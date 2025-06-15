@@ -8,6 +8,7 @@ package kimgui;
  */
 class Handle {
   public var selected = false;
+  public var selectedIndex:Int = -1;
   public var window: Window;
 
   private var m_children: Map<Int, Handle>;
@@ -15,6 +16,7 @@ class Handle {
   public function new(ops: HandleOptions = null) {
     if (ops != null) {
       if (ops.selected != null) selected = ops.selected;
+      if (ops.selectedIndex != null) selectedIndex = ops.selectedIndex;
     }
   }
 

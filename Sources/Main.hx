@@ -65,6 +65,12 @@ class Application {
         ui.text("Click count: " + clicks[0]);
         ui.check(Id.handle());
 
+        var radioGroup = Id.handle();
+        ui.radio(radioGroup, 0);
+        ui.radio(radioGroup, 1);
+        ui.radio(radioGroup, 2);
+
+
         if (ui.button("Click Me")) {
           clicks[0]++;
         }

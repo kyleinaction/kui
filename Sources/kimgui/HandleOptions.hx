@@ -1,5 +1,6 @@
 package kimgui;
 
 typedef HandleOptions = {
-  ?selected: Bool
+  ?selected: Bool,
+  ?selectedIndex: Int
 }
