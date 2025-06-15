@@ -295,7 +295,6 @@ class Kimgui {
       }
     }
 
-
     var textWidth = m_options.font.width(m_options.theme.BUTTON_TEXT_SIZE, text);
     var textHeight = m_options.font.height(m_options.theme.BUTTON_TEXT_SIZE);
 
@@ -307,6 +306,33 @@ class Kimgui {
 
     cursorY += height + m_options.theme.ELEMENT_SPACING;
     return clicked;
+  }
+
+  /**
+   * Draws a checkbox at the current cursor position and moves the cursor.
+   * Returns true if the checkbox is checked.
+   */
+  public function check(handle: Handle):Bool {
+    var bodyRect = m_currentWindow.node.getBodyRect(m_options.theme);
+
+    var sx = bodyRect[0];
+    var sy = bodyRect[1];
+    var localX = cursorX + m_options.theme.WINDOW_BODY_PADDING;
+
+    if (isHovering(sx + localX, sy + cursorY, m_options.theme.CHECKBOX_SIZE, m_options.theme.CHECKBOX_SIZE)) {
+      if (inputReleased) {
+        handle.selected = !handle.selected;
+      }
+    }
+    
+    drawRect(localX, cursorY, m_options.theme.CHECKBOX_SIZE, m_options.theme.CHECKBOX_SIZE, m_options.theme.CHECKBOX_COLOR);
+    if (handle.selected) {
+      var padding = m_options.theme.CHECKBOX_PADDING;
+      drawRect(localX + padding, cursorY + padding, m_options.theme.CHECKBOX_SIZE - padding * 2, m_options.theme.CHECKBOX_SIZE - padding * 2, m_options.theme.CHECKBOX_CHECK_COLOR);
+    }
+
+    cursorY += m_options.theme.CHECKBOX_SIZE + m_options.theme.ELEMENT_SPACING;
+    return handle.selected;
   }
 
   /**

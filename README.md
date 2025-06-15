@@ -88,7 +88,7 @@ class Application {
 - [x] Text/Labels.
 - [x] Buttons.
 - [ ] Radio buttons.
-- [ ] Check-boxes.
+- [x] Check-boxes.
 - [ ] Combo-boxes.
 - [ ] Panels.
 - [ ] Text inputs.

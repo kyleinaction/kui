@@ -37,6 +37,11 @@ typedef Theme = {
   var BUTTON_TEXT_COLOR: Int;
   var BUTTON_TEXT_SIZE: Int;
 
+  var CHECKBOX_SIZE: Float;
+  var CHECKBOX_COLOR: Int;
+  var CHECKBOX_CHECK_COLOR: Int;
+  var CHECKBOX_PADDING: Float;
+
   var SCROLLBAR_COLOR: Int;
   var SCROLLBAR_THICKNESS: Float;
   var SCROLL_SPEED: Float;

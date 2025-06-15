@@ -63,16 +63,13 @@ class Application {
       if (ui.window(Id.handle(), "First Window", 30, 30, 300, 300)) {
         ui.text("This is window 1");
         ui.text("Click count: " + clicks[0]);
+        ui.check(Id.handle());
 
         if (ui.button("Click Me")) {
           clicks[0]++;
         }
 
-        ui.text("Lorem ipsum dolor sit amet,");
-        ui.text("consectetur adipiscing elit.");
-        ui.text("Integer sed nisi in orci posuere venenatis.");
-        ui.text("Integer sollicitudin purus nec tortor");
-        ui.text("congue consequat. Proin varius luctus aliquam.");
+        ui.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec facilisis fermentum aliquet. Nulla efficitur vestibulum sem eget venenatis. Cras non elit sit amet tortor maximus aliquam id ac metus. Praesent imperdiet, neque ut tristique dapibus, tortor quam tempus odio, id maximus lorem turpis in nulla. Nulla feugiat maximus purus, in dapibus est euismod in. In viverra nulla ligula. Quisque efficitur tortor vitae metus rhoncus posuere. Vivamus faucibus leo ut hendrerit consequat. In dignissim lacus et odio suscipit blandit. Morbi ultricies eleifend est, ut luctus massa dapibus elementum. Aenean ultricies eros convallis porta vestibulum.");
       }
       
       if (ui.window(Id.handle(), "Second Window", 350, 30, 200, 300)) {
@@ -83,11 +80,7 @@ class Application {
           clicks[1]++;
         }
 
-        ui.text("Lorem ipsum dolor sit amet,");
-        ui.text("consectetur adipiscing elit.");
-        ui.text("Integer sed nisi in orci posuere venenatis.");
-        ui.text("Integer sollicitudin purus nec tortor");
-        ui.text("congue consequat. Proin varius luctus aliquam.");
+        ui.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec facilisis fermentum aliquet. Nulla efficitur vestibulum sem eget venenatis. Cras non elit sit amet tortor maximus aliquam id ac metus. Praesent imperdiet, neque ut tristique dapibus, tortor quam tempus odio, id maximus lorem turpis in nulla. Nulla feugiat maximus purus, in dapibus est euismod in. In viverra nulla ligula. Quisque efficitur tortor vitae metus rhoncus posuere. Vivamus faucibus leo ut hendrerit consequat. In dignissim lacus et odio suscipit blandit. Morbi ultricies eleifend est, ut luctus massa dapibus elementum. Aenean ultricies eros convallis porta vestibulum.");
       }
 
       if (ui.window(Id.handle(), "Third Window", 600, 30, 200, 300)) {
@@ -96,12 +89,7 @@ class Application {
         if (ui.button("Third Button")) {
           clicks[2]++;
         }
-
-        ui.text("Lorem ipsum dolor sit amet,");
-        ui.text("consectetur adipiscing elit.");
-        ui.text("Integer sed nisi in orci posuere venenatis.");
-        ui.text("Integer sollicitudin purus nec tortor");
-        ui.text("congue consequat. Proin varius luctus aliquam.");
+        ui.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec facilisis fermentum aliquet. Nulla efficitur vestibulum sem eget venenatis. Cras non elit sit amet tortor maximus aliquam id ac metus. Praesent imperdiet, neque ut tristique dapibus, tortor quam tempus odio, id maximus lorem turpis in nulla. Nulla feugiat maximus purus, in dapibus est euismod in. In viverra nulla ligula. Quisque efficitur tortor vitae metus rhoncus posuere. Vivamus faucibus leo ut hendrerit consequat. In dignissim lacus et odio suscipit blandit. Morbi ultricies eleifend est, ut luctus massa dapibus elementum. Aenean ultricies eros convallis porta vestibulum.");
       }
     ui.end();
   }
